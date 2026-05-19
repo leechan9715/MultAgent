@@ -15,6 +15,16 @@ description: Full QA review pipeline covering security audit (OWASP Top 10), per
 
 ---
 
+## Anti-Execution Guard (Codex Blocking)
+
+If the current runtime vendor is `codex`, stop immediately before Step 1.
+Do not perform scope collection, code analysis, security checks, or any other review step.
+Output only:
+
+`이 워크플로우는 Gemini 전담입니다. Gemini CLI로 넘길까요?`
+
+Then wait for the Gemini handoff.
+
 ## Vendor Detection
 
 Before starting, determine your runtime environment by following `.agents/skills/_shared/core/vendor-detection.md`.

@@ -122,6 +122,13 @@ Codex는 다음 작업을 담당한다.
 - Git diff 확인
 - 빌드/런타임 오류 수정
 
+#### 에이전트 스킬 매핑 (Subagent Mapping)
+
+| 역할 | 담당 에이전트 (Subagents) | 주요 작업 내용 |
+| :--- | :--- | :--- |
+| **Gemini (전략/검토)** | `pm-planner`, `qa-reviewer`, `architecture-reviewer`, `debug-investigator` (원인 분석), `docs-curator` | 요구사항 분석, 코드 품질 리뷰, 설계 검토, 버그 원인 파악, 문서 정합성 체크 |
+| **Codex (실행/수정)** | `frontend-engineer`, `backend-engineer`, `db-engineer`, `mobile-engineer`, `tf-infra-engineer`, `debug-investigator` (코드 수정) | UI/API 구현, DB 마이그레이션, 실제 코드 및 설정 파일 수정, 테스트 실행 |
+
 ### 반드시 Codex 위임 여부를 물어봐야 하는 요청
 
 사용자의 요청에 아래 표현이나 의미가 포함되면, Gemini는 직접 처리하지 말고 먼저 Codex 위임 여부를 물어본다.

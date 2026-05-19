@@ -122,10 +122,22 @@ Gemini는 다음 작업을 담당한다.
 - 문서 검토
 - UI/UX 방향성 검토
 
-### 반드시 Gemini 위임 여부를 물어봐야 하는 요청
+#### 에이전트 스킬 매핑 (Subagent Mapping)
 
-사용자의 요청에 아래 표현이나 의미가 포함되면, Codex는 직접 답변하지 말고 먼저 Gemini 위임 여부를 물어본다.
+| 역할 | 담당 에이전트 (Subagents) | 비고 |
+| :--- | :--- | :--- |
+| **Codex (나의 주력 스킬)** | `frontend-engineer`, `backend-engineer`, `db-engineer`, `mobile-engineer`, `tf-infra-engineer`, `debug-investigator` (코드 수정) | **직접 실행** 및 파일 수정 |
+| **Gemini 위임 권장 스킬** | `pm-planner`, `qa-reviewer`, `architecture-reviewer`, `debug-investigator` (심층 분석), `docs-curator` | 분석/리뷰가 필요하면 **Gemini에게 위임** |
 
+### 금지: Gemini 위임 없이 리뷰 응답 시작 금지
+
+사용자의 요청에 아래 표현이나 의미가 포함되면, Codex는 **어떠한 분석, 코드 조회, 추론, 답변 초안도 시작하지 말고 즉시 중단**한다.
+
+- 리뷰
+- 검토
+- 보안 점검
+- audit
+- review
 - 리서치
 - 조사
 - 비교
@@ -140,6 +152,12 @@ Gemini는 다음 작업을 담당한다.
 - 자료 찾아줘
 - 요즘 어떤지
 - 추천 방향
+
+즉시 아래 문장만 출력하고 종료한다.
+
+`이 작업은 Gemini에게 맡기는 게 더 적합해 보여요. Gemini CLI에 보내서 실행할까요?`
+
+이 규칙은 리뷰/검토/분석 요청에만 적용하며, 구현(Implementation), 디버깅(Debug), 테스트 실행 요청에는 적용하지 않는다.
 
 ### 복합 요청 처리 기준
 

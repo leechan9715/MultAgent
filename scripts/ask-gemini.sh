@@ -50,6 +50,7 @@ printf '%s %s\n' "$PROMPT_HASH" "$NOW" > "$STATE_FILE"
 
 tmux set-buffer -- "$PROMPT"
 tmux paste-buffer -t "$PANE_ID"
+sleep 0.5
 tmux send-keys -t "$PANE_ID" Enter
 
 echo "Sent to Gemini pane: $PANE_ID"

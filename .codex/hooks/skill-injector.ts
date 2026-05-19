@@ -54,6 +54,15 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   return "claude";
 }
 
+function isExpectedHookEvent(
+  vendor: Vendor,
+  event: string | undefined,
+): boolean {
+  if (vendor === "gemini") return event === "BeforeAgent";
+  if (vendor === "codex") return event === "UserPromptSubmit";
+  return true;
+}
+
 function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
   let dir: string;
   switch (vendor) {
@@ -87,6 +96,16 @@ interface SkillsTriggerConfig {
   cjkScripts?: string[];
 }
 
+interface OmaAgentConfig {
+  model?: string;
+  effort?: string;
+}
+
+interface OmaConfig {
+  language?: string;
+  agents: Record<string, OmaAgentConfig>;
+}
+
 function loadTriggersConfig(): SkillsTriggerConfig {
   const configPath = join(import.meta.dirname, "triggers.json");
   if (!existsSync(configPath)) return {};
@@ -106,6 +125,67 @@ function detectLanguage(projectDir: string): string {
     return match?.[1] ?? "en";
   } catch {
     return "en";
+  }
+}
+
+function parseOmaConfig(projectDir: string): OmaConfig {
+  const prefsPath = join(projectDir, ".agents", "oma-config.yaml");
+  if (!existsSync(prefsPath)) return { agents: {} };
+
+  try {
+    const content = readFileSync(prefsPath, "utf-8");
+    const result: OmaConfig = { agents: {} };
+    const lines = content.split(/\r?\n/);
+    let inAgents = false;
+    let currentAgent: string | null = null;
+
+    for (const rawLine of lines) {
+      const line = rawLine.replace(/\t/g, "    ");
+      if (/^\s*#/.test(line) || !line.trim()) continue;
+
+      const topLevel = /^([a-z][\w-]*)\s*:\s*(.*)$/i.exec(line);
+      if (topLevel && !/^\s/.test(line)) {
+        const key = topLevel[1];
+        const value = (topLevel[2] ?? "").trim().replace(/^['"]|['"]$/g, "");
+        inAgents = key === "agents";
+        currentAgent = null;
+        if (key === "language" && value) result.language = value;
+        continue;
+      }
+
+      if (!inAgents) continue;
+
+      const agentMatch = /^\s{2,}([a-z][\w-]*)\s*:\s*(.*)$/i.exec(line);
+      if (agentMatch && !/^\s{4,}/.test(line)) {
+        currentAgent = agentMatch[1];
+        const value = (agentMatch[2] ?? "").trim();
+        if (value && value !== "{}") {
+          result.agents[currentAgent] = {
+            ...result.agents[currentAgent],
+            model: value.replace(/^['"]|['"]$/g, ""),
+          };
+        } else if (!result.agents[currentAgent]) {
+          result.agents[currentAgent] = {};
+        }
+        continue;
+      }
+
+      const fieldMatch = /^\s{4,}([a-z][\w-]*)\s*:\s*(.*)$/i.exec(line);
+      if (!fieldMatch || !currentAgent) continue;
+
+      const field = fieldMatch[1];
+      const value = (fieldMatch[2] ?? "").trim().replace(/^['"]|['"]$/g, "");
+      if (!result.agents[currentAgent]) result.agents[currentAgent] = {};
+      if (field === "model" && value) {
+        result.agents[currentAgent].model = value;
+      } else if (field === "effort" && value) {
+        result.agents[currentAgent].effort = value;
+      }
+    }
+
+    return result;
+  } catch {
+    return { agents: {} };
   }
 }
 
@@ -175,6 +255,18 @@ export interface SkillMatch {
   relPath: string;
   score: number;
   matchedTriggers: string[];
+  agentName: string;
+  model: string;
+  effort: string;
+}
+
+function resolveAgentName(skillName: string, config: OmaConfig): string {
+  const normalized = skillName.startsWith("oma-")
+    ? skillName.slice("oma-".length)
+    : skillName;
+  if (config.agents[normalized]) return normalized;
+  if (config.agents[skillName]) return skillName;
+  return normalized;
 }
 
 export function matchSkills(
@@ -182,6 +274,7 @@ export function matchSkills(
   lang: string,
   skills: SkillEntry[],
   config: SkillsTriggerConfig,
+  omaConfig: OmaConfig = { agents: {} },
 ): SkillMatch[] {
   const cjkScripts = config.cjkScripts ?? DEFAULT_CJK_SCRIPTS;
   const matches: SkillMatch[] = [];
@@ -220,11 +313,16 @@ export function matchSkills(
     }
 
     if (score > 0) {
+      const agentName = resolveAgentName(skill.name, omaConfig);
+      const agentConfig = omaConfig.agents[agentName] ?? {};
       matches.push({
         name: skill.name,
         relPath: skill.relPath,
         score,
         matchedTriggers: matched,
+        agentName,
+        model: agentConfig.model ?? "unknown",
+        effort: agentConfig.effort ?? "unknown",
       });
     }
   }
@@ -437,10 +535,13 @@ export function formatContext(matches: SkillMatch[]): string {
     "",
   ];
   for (const m of matches) {
-    lines.push(`- **${m.name}** — \`${m.relPath}\``);
+    lines.push("[OMA-Mapping]: 3단계 전문가 및 스킬 매핑 정보");
+    lines.push(`- **Skill**: ${m.name} (파일: ${m.relPath})`);
+    lines.push(`- **Model**: ${m.model}`);
+    lines.push(`- **Agent**: ${m.agentName} (effort: ${m.effort})`);
     lines.push(`  Matched triggers: ${m.matchedTriggers.join(", ")}`);
+    lines.push("");
   }
-  lines.push("");
   lines.push(
     "Read the relevant SKILL.md before invoking. These suggestions are advisory — apply judgement.",
   );
@@ -459,6 +560,8 @@ async function main() {
   }
 
   const vendor = detectVendor(input);
+  const hookEventName = input.hook_event_name as string | undefined;
+  if (!isExpectedHookEvent(vendor, hookEventName)) process.exit(0);
   const projectDir = getProjectDir(vendor, input);
   const sessionId = getSessionId(input);
   const prompt = (input.prompt as string) ?? "";
@@ -476,7 +579,11 @@ async function main() {
       const slashSkill = findClaudeSlashSkill(slashName, projectDir);
       if (slashSkill) {
         process.stdout.write(
-          makePromptOutput(vendor, formatClaudeSlashSkillContext(slashSkill)),
+          makePromptOutput(
+            vendor,
+            formatClaudeSlashSkillContext(slashSkill),
+            hookEventName,
+          ),
         );
         process.exit(0);
       }
@@ -488,10 +595,11 @@ async function main() {
 
   const lang = detectLanguage(projectDir);
   const config = loadTriggersConfig();
+  const omaConfig = parseOmaConfig(projectDir);
   const cleaned = stripCodeBlocks(prompt);
   const skills = discoverSkills(projectDir);
 
-  const matches = matchSkills(cleaned, lang, skills, config);
+  const matches = matchSkills(cleaned, lang, skills, config, omaConfig);
   if (matches.length === 0) process.exit(0);
 
   const { fresh, nextState } = filterFreshMatches(
@@ -502,7 +610,9 @@ async function main() {
   if (fresh.length === 0) process.exit(0);
 
   writeState(projectDir, nextState);
-  process.stdout.write(makePromptOutput(vendor, formatContext(fresh)));
+  process.stdout.write(
+    makePromptOutput(vendor, formatContext(fresh), hookEventName),
+  );
   process.exit(0);
 }
 

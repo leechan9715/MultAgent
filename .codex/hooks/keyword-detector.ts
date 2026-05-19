@@ -278,6 +278,15 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   return "claude";
 }
 
+function isExpectedHookEvent(
+  vendor: Vendor,
+  event: string | undefined,
+): boolean {
+  if (vendor === "gemini") return event === "BeforeAgent";
+  if (vendor === "codex") return event === "UserPromptSubmit";
+  return true;
+}
+
 function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
   let dir: string;
   switch (vendor) {
@@ -672,6 +681,8 @@ async function main() {
   if (!isGenuineUserPrompt(input)) process.exit(0);
 
   const vendor = detectVendor(input);
+  const hookEventName = input.hook_event_name as string | undefined;
+  if (!isExpectedHookEvent(vendor, hookEventName)) process.exit(0);
   const projectDir = getProjectDir(vendor, input);
   const sessionId = getSessionId(input);
   const prompt = (input.prompt as string) ?? "";
@@ -764,7 +775,7 @@ async function main() {
 
       const context = contextLines.join("\n");
 
-      process.stdout.write(makePromptOutput(vendor, context));
+      process.stdout.write(makePromptOutput(vendor, context, hookEventName));
       process.exit(0);
     }
   }

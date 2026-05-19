@@ -5,9 +5,23 @@
 
 import type { Vendor } from "./types.ts";
 
+function defaultHookEventName(vendor: Vendor): string {
+  switch (vendor) {
+    case "gemini":
+      return "BeforeAgent";
+    case "claude":
+    case "codex":
+    case "cursor":
+    case "qwen":
+      return "UserPromptSubmit";
+  }
+  return "UserPromptSubmit";
+}
+
 export function makePromptOutput(
   vendor: Vendor,
   additionalContext: string,
+  hookEventName: string = defaultHookEventName(vendor),
 ): string {
   switch (vendor) {
     case "claude":
@@ -15,7 +29,7 @@ export function makePromptOutput(
     case "codex":
       return JSON.stringify({
         hookSpecificOutput: {
-          hookEventName: "UserPromptSubmit",
+          hookEventName,
           additionalContext,
         },
       });
@@ -24,14 +38,14 @@ export function makePromptOutput(
         additionalContext,
         additional_context: additionalContext,
         hookSpecificOutput: {
-          hookEventName: "UserPromptSubmit",
+          hookEventName,
           additionalContext,
         },
       });
     case "gemini":
       return JSON.stringify({
         hookSpecificOutput: {
-          hookEventName: "BeforeAgent",
+          hookEventName,
           additionalContext,
         },
       });
@@ -39,7 +53,7 @@ export function makePromptOutput(
       // Qwen Code fork uses hookSpecificOutput (same as Codex)
       return JSON.stringify({
         hookSpecificOutput: {
-          hookEventName: "UserPromptSubmit",
+          hookEventName,
           additionalContext,
         },
       });
