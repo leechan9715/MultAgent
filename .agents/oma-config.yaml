@@ -1,0 +1,62 @@
+language: ko
+timezone: Asia/Seoul
+telemetry: false
+
+model_preset: mixed
+
+vendors:
+  - codex
+  - gemini
+
+agents:
+  orchestrator:
+    model: openai/gpt-5.5
+    effort: high
+
+  frontend:
+    model: openai/gpt-5.5
+    effort: high
+
+  backend:
+    model: openai/gpt-5.5
+    effort: high
+
+  debug:
+    model: openai/gpt-5.5
+    effort: high
+
+  db:
+    model: openai/gpt-5.5
+    effort: high
+
+  mobile:
+    model: openai/gpt-5.5
+    effort: high
+
+  tf-infra:
+    model: openai/gpt-5.5
+    effort: high
+
+  architecture:
+    model: google/gemini-3.1-pro-preview
+    effort: medium
+
+  pm:
+    model: google/gemini-3.1-pro-preview
+    effort: medium
+
+  qa:
+    model: google/gemini-3.1-pro-preview
+    effort: medium
+
+  design:
+    model: google/gemini-3.1-pro-preview
+    effort: medium
+
+  docs:
+    model: google/gemini-3.1-pro-preview
+    effort: medium
+
+  retrieval:
+    model: google/gemini-3.1-flash-lite
+    effort: medium
