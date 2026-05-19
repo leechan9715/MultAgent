@@ -124,10 +124,10 @@ Gemini는 다음 작업을 담당한다.
 
 #### 에이전트 스킬 매핑 (Subagent Mapping)
 
-| 역할 | 담당 에이전트 (Subagents) | 비고 |
-| :--- | :--- | :--- |
-| **Codex (나의 주력 스킬)** | `frontend-engineer`, `backend-engineer`, `db-engineer`, `mobile-engineer`, `tf-infra-engineer`, `debug-investigator` (코드 수정) | **직접 실행** 및 파일 수정 |
-| **Gemini 위임 권장 스킬** | `pm-planner`, `qa-reviewer`, `architecture-reviewer`, `debug-investigator` (심층 분석), `docs-curator` | 분석/리뷰가 필요하면 **Gemini에게 위임** |
+| 역할                       | 담당 에이전트 (Subagents)                                                                                                        | 비고                                     |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------- |
+| **Codex (나의 주력 스킬)** | `frontend-engineer`, `backend-engineer`, `db-engineer`, `mobile-engineer`, `tf-infra-engineer`, `debug-investigator` (코드 수정) | **직접 실행** 및 파일 수정               |
+| **Gemini 위임 권장 스킬**  | `pm-planner`, `qa-reviewer`, `architecture-reviewer`, `debug-investigator` (심층 분석), `docs-curator`                           | 분석/리뷰가 필요하면 **Gemini에게 위임** |
 
 ### 금지: Gemini 위임 없이 리뷰 응답 시작 금지
 

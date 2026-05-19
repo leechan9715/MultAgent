@@ -1,3 +1,4 @@
+suppress_unstable_features_warning = true
 model_reasoning_effort = "high"
 
 [features]

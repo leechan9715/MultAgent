@@ -4,6 +4,7 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PANE_FILE="$PROJECT_ROOT/.gemini-pane"
 EXPECTED_CMD="gemini"
+EXPECTED_PROCESS_PATTERN="(^|[ /])${EXPECTED_CMD}([[:space:]]|$)|(^|[ /])node[[:space:]].*[ /]${EXPECTED_CMD}([[:space:]]|$)"
 
 if [ ! -f "$PANE_FILE" ]; then
   echo "Gemini pane id file not found: $PANE_FILE"
@@ -24,8 +25,9 @@ fi
 
 PANE_PID="$(tmux display-message -p -t "$PANE_ID" '#{pane_pid}' 2>/dev/null || true)"
 PANE_COMMAND="$(tmux display-message -p -t "$PANE_ID" '#{pane_current_command}' 2>/dev/null || true)"
+CHILD_PROCESSES="$(pgrep -a -P "$PANE_PID" 2>/dev/null || true)"
 
-if [ -z "$PANE_PID" ] || ! pgrep -a -P "$PANE_PID" | grep -Eq "(^|[ /])${EXPECTED_CMD}([[:space:]]|$)"; then
+if [ -z "$PANE_PID" ] || ! printf '%s\n' "$CHILD_PROCESSES" | grep -Eq "$EXPECTED_PROCESS_PATTERN"; then
   echo "Refusing to send prompt: target pane $PANE_ID is running '${PANE_COMMAND:-unknown}', not $EXPECTED_CMD."
   echo "Start Gemini in that pane, then refresh the pane id if needed:"
   echo "tmux display-message -p '#{pane_id}' > .gemini-pane"
