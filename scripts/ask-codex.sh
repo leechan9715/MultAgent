@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PANE_FILE=".codex-pane"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PANE_FILE="$PROJECT_ROOT/.codex-pane"
 EXPECTED_CMD="codex"
 
 if [ ! -f "$PANE_FILE" ]; then
-  echo "Codex pane id file not found."
+  echo "Codex pane id file not found: $PANE_FILE"
   echo "Run this command from the Codex tmux pane:"
-  echo "tmux display-message -p '#{pane_id}' > .codex-pane"
+  echo "tmux display-message -p '#{pane_id}' > $PANE_FILE"
   exit 1
 fi
 
 PANE_ID="$(cat "$PANE_FILE")"
 PROMPT="$*"
-STATE_FILE=".ask-codex-last"
+STATE_FILE="$PROJECT_ROOT/.ask-codex-last"
 DEDUPE_SECONDS="${ASK_DEDUPE_SECONDS:-30}"
 
 if [ -z "$PROMPT" ]; then

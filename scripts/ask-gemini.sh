@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PANE_FILE=".gemini-pane"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PANE_FILE="$PROJECT_ROOT/.gemini-pane"
 EXPECTED_CMD="gemini"
 
 if [ ! -f "$PANE_FILE" ]; then
-  echo "Gemini pane id file not found."
+  echo "Gemini pane id file not found: $PANE_FILE"
   echo "Run this command from the Gemini tmux pane:"
-  echo "tmux display-message -p '#{pane_id}' > .gemini-pane"
+  echo "tmux display-message -p '#{pane_id}' > $PANE_FILE"
   exit 1
 fi
 
 PANE_ID="$(cat "$PANE_FILE")"
 PROMPT="$*"
-STATE_FILE=".ask-gemini-last"
+STATE_FILE="$PROJECT_ROOT/.ask-gemini-last"
 DEDUPE_SECONDS="${ASK_DEDUPE_SECONDS:-30}"
 
 if [ -z "$PROMPT" ]; then

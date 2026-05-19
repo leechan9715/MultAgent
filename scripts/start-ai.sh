@@ -6,14 +6,14 @@ SESSION="ai"
 
 tmux kill-session -t "$SESSION" 2>/dev/null || true
 
-tmux new-session -d -s "$SESSION" -c "$PROJECT" -n main
-tmux send-keys -t "$SESSION:0.0" 'codex' C-m
+CODEX_PANE_ID=$(tmux new-session -d -s "$SESSION" -c "$PROJECT" -n main -P -F "#{pane_id}")
+tmux send-keys -t "$CODEX_PANE_ID" 'codex' C-m
 
-tmux split-window -h -t "$SESSION:0.0" -c "$PROJECT"
-tmux send-keys -t "$SESSION:0.1" 'gemini' C-m
+GEMINI_PANE_ID=$(tmux split-window -h -t "$CODEX_PANE_ID" -c "$PROJECT" -P -F "#{pane_id}")
+tmux send-keys -t "$GEMINI_PANE_ID" 'gemini' C-m
 
-tmux display-message -p -t "$SESSION:0.0" '#{pane_id}' > "$PROJECT/.codex-pane"
-tmux display-message -p -t "$SESSION:0.1" '#{pane_id}' > "$PROJECT/.gemini-pane"
+echo "$CODEX_PANE_ID" > "$PROJECT/.codex-pane"
+echo "$GEMINI_PANE_ID" > "$PROJECT/.gemini-pane"
 
-tmux select-pane -t "$SESSION:0.0"
+tmux select-pane -t "$CODEX_PANE_ID"
 tmux attach -t "$SESSION"
