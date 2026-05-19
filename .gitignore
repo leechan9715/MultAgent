@@ -1,0 +1,9 @@
+.ask-codex-last
+.ask-gemini-last
+.codex-pane
+.gemini-pane
+.agents/state/
+.serena/memories/*.md
+!.serena/memories/memory_maintenance.md
+!.serena/memories/.gitkeep
+docs

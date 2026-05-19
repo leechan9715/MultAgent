@@ -85,6 +85,10 @@ Read the relevant file from `.agents/rules/` when working on matching code.
 
 <!-- Custom project rules must stay below OMA:END so the managed OMA block remains untouched. -->
 
+## Hook Location Note
+
+OMA 관리 블록에는 공통 hook 경로가 `.agents/hooks/core/triggers.json`로 표시될 수 있다. 이 프로젝트의 실제 런타임 hook 파일은 Codex용 `.codex/hooks/`와 Gemini용 `.gemini/hooks/`에 생성되어 있으며, OMA 관리 블록은 직접 수정하지 않는다.
+
 ## HIGH PRIORITY: Gemini → Codex Delegation Gate
 
 이 프로젝트에서는 Gemini CLI와 Codex CLI를 tmux 2분할 환경에서 함께 사용한다.
