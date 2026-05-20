@@ -15,8 +15,8 @@ Important:
 
 1. **Claude Code**: Your system prompt contains "You are Claude Code" OR the `Agent` tool is available
 2. **Codex CLI**: Your system prompt contains "Codex CLI" OR the `apply_patch` tool is available
-3. **Gemini CLI**: This file was auto-loaded from `.agents/skills/` AND `@` subagent syntax is available
-4. **Antigravity IDE**: This file was auto-loaded from `.agents/skills/` AND no `@` subagent syntax
+3. **agy CLI**: This file was auto-loaded from `.agents/skills/` AND `@` subagent syntax is available
+4. **agy IDE**: This file was auto-loaded from `.agents/skills/` AND no `@` subagent syntax
 5. **CLI Fallback**: None of the above matched → use `oma agent:spawn`
 
 ## Vendor-Specific Spawn Methods
@@ -25,8 +25,8 @@ Important:
 |:---|:---|:---|
 | Claude Code | `Agent` tool with `.claude/agents/{name}.md` | Synchronous return |
 | Codex CLI | Native custom agents in `.codex/agents/{name}.toml` via `codex exec "@agent ..."` when available, otherwise `oma agent:spawn` | JSON output |
-| Gemini CLI | `.gemini/agents/{name}.md` native subagents via `gemini -p "@agent ..."` when available, otherwise `oma agent:spawn` | JSON output or MCP memory poll |
-| Antigravity | Prefer `oma agent:spawn` unless a native role-subagent path is explicitly verified for the target vendor | MCP memory poll |
+| agy CLI | `.agy/agents/{name}.md` native subagents via `agy -p "@agent ..."` when available, otherwise `oma agent:spawn` | JSON output or MCP memory poll |
+| agy | Prefer `oma agent:spawn` unless a native role-subagent path is explicitly verified for the target vendor | MCP memory poll |
 | CLI Fallback | `oma agent:spawn {agent} {prompt} {session} -w {workspace}` | Result file poll |
 
 ## Dispatch Rule
@@ -39,8 +39,8 @@ For each agent:
 
 Example:
 - Runtime: Claude Code
-- Mapping: `frontend: claude`, `backend: claude`, `qa: gemini`
+- Mapping: `frontend: claude`, `backend: claude`, `qa: agy`
 - Result:
   - `frontend` -> native Claude subagent
   - `backend` -> native Claude subagent
-  - `qa` -> external Gemini spawn
+  - `qa` -> external agy spawn

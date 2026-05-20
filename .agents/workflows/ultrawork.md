@@ -98,8 +98,8 @@ Spawn native Codex custom agents using `.codex/agents/{agent}.toml` when availab
 Pass each agent its task description, API contracts, and relevant context.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn`.
 
-#### If Gemini CLI and target vendor is Gemini
-Use native Gemini subagents when available, otherwise fall back to `oma agent:spawn`.
+#### If agy CLI and target vendor is agy
+Use native agy subagents when available, otherwise fall back to `oma agent:spawn`.
 
 #### If target vendor differs from current runtime, or native dispatch is unavailable
 ```bash
@@ -158,7 +158,7 @@ Use the Agent tool to spawn subagent:
 Spawn native Codex custom agents using `.codex/agents/{agent}.toml` when available for QA verification.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn`.
 
-#### If Gemini CLI or Antigravity or CLI Fallback
+#### If agy CLI or agy or CLI Fallback
 ```bash
 oma agent:spawn qa-agent "Execute Phase 3 Verification. Step 6: Alignment Review. Step 7: Security/Bug Review (npm audit, OWASP). Step 8: Improvement/Regression Review. IMPORTANT: Follow .agents/skills/_shared/core/context-loading.md rules." session-id
 ```
@@ -235,7 +235,7 @@ Use the Agent tool to spawn subagent:
 Spawn native Codex custom agents using `.codex/agents/{agent}.toml` when available for refinement tasks.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn`.
 
-#### If Gemini CLI or Antigravity or CLI Fallback
+#### If agy CLI or agy or CLI Fallback
 ```bash
 oma agent:spawn debug-agent "Execute Phase 4 Refine. Step 9: Split large files. Step 10: Integration check. Step 11: Side Effect analysis (find_referencing_symbols). Step 12: Consistency review. Step 13: Cleanup dead code. IMPORTANT: Follow .agents/skills/_shared/core/context-loading.md rules." session-id
 ```
@@ -310,7 +310,7 @@ Use the Agent tool to spawn subagent:
 Spawn native Codex custom agents using `.codex/agents/{agent}.toml` when available for final QA and deployment readiness tasks.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn`.
 
-#### If Gemini CLI or Antigravity or CLI Fallback
+#### If agy CLI or agy or CLI Fallback
 ```bash
 oma agent:spawn qa-agent "Execute Phase 5 Ship. Step 14: Quality Review (lint/coverage). Step 15: UX Flow Verification. Step 16: Related Issues Review. Step 17: Deployment Readiness. IMPORTANT: Follow .agents/skills/_shared/core/context-loading.md rules." session-id
 ```

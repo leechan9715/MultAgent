@@ -2,7 +2,7 @@
 /**
  * oh-my-agent — Skill Injector Hook (UserPromptSubmit)
  *
- * Works with: Claude Code, Codex CLI, Gemini CLI, Cursor, Qwen Code.
+ * Works with: Claude Code, Codex CLI, agy CLI, Cursor, Qwen Code.
  *
  * Discovers `.agents/skills/<name>/` directories (requires `SKILL.md` to exist),
  * looks up multilingual triggers from `triggers.json` (`skills` section),
@@ -36,7 +36,7 @@ function inferVendorFromScriptPath(): Vendor | null {
   if (path.includes(`${join(".cursor", "hooks")}`)) return "cursor";
   if (path.includes(`${join(".qwen", "hooks")}`)) return "qwen";
   if (path.includes(`${join(".claude", "hooks")}`)) return "claude";
-  if (path.includes(`${join(".gemini", "hooks")}`)) return "gemini";
+  if (path.includes(`${join(".agy", "hooks")}`)) return "agy";
   if (path.includes(`${join(".codex", "hooks")}`)) return "codex";
   return null;
 }
@@ -45,7 +45,7 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   const event = input.hook_event_name as string | undefined;
   const byScriptPath = inferVendorFromScriptPath();
   if (byScriptPath) return byScriptPath;
-  if (event === "BeforeAgent") return "gemini";
+  if (event === "BeforeAgent") return "agy";
   if (event === "beforeSubmitPrompt") return "cursor";
   if (event === "UserPromptSubmit") {
     if ("session_id" in input && !("sessionId" in input)) return "codex";
@@ -58,7 +58,7 @@ function isExpectedHookEvent(
   vendor: Vendor,
   event: string | undefined,
 ): boolean {
-  if (vendor === "gemini") return event === "BeforeAgent";
+  if (vendor === "agy") return event === "BeforeAgent";
   if (vendor === "codex") return event === "UserPromptSubmit";
   return true;
 }
@@ -70,8 +70,8 @@ function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
     case "cursor":
       dir = (input.cwd as string) || process.cwd();
       break;
-    case "gemini":
-      dir = process.env.GEMINI_PROJECT_DIR || process.cwd();
+    case "agy":
+      dir = process.env.AGY_PROJECT_DIR || process.cwd();
       break;
     case "qwen":
       dir = process.env.QWEN_PROJECT_DIR || process.cwd();

@@ -6,7 +6,7 @@ model_preset: mixed
 
 vendors:
   - codex
-  - gemini
+  - agy
 
 agents:
   orchestrator:
@@ -38,25 +38,25 @@ agents:
     effort: high
 
   architecture:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   pm:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   qa:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   design:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   docs:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   retrieval:
-    model: google/gemini-3.1-flash-lite
+    model: google/agy-3.1-flash-lite
     effort: medium

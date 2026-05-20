@@ -1,7 +1,7 @@
 .ask-codex-last
-.ask-gemini-last
+.ask-agy-last
 .codex-pane
-.gemini-pane
+.agy-pane
 .agents/state/
 .serena/memories/*.md
 !.serena/memories/memory_maintenance.md

@@ -34,11 +34,13 @@ fi
 
 PROMPT_HASH="$(printf '%s' "$PROMPT" | sha256sum | awk '{print $1}')"
 PROMPT_KEY="$PROMPT_HASH"
+
 case "$PROMPT" in
-  AUTO_FIX_FROM_GEMINI_REVIEW*)
-    PROMPT_KEY="AUTO_FIX_FROM_GEMINI_REVIEW_${PROMPT_HASH}"
+  AUTO_FIX_FROM_AGY_REVIEW*)
+    PROMPT_KEY="AUTO_FIX_FROM_AGY_REVIEW_${PROMPT_HASH}"
     ;;
 esac
+
 NOW="$(date +%s)"
 
 if [ "${ASK_CODEX_ALLOW_DUPLICATE:-0}" != "1" ] && [ -f "$STATE_FILE" ]; then

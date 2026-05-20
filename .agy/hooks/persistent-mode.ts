@@ -2,7 +2,7 @@
 /**
  * oh-my-agent — Stop Hook (Persistent Mode)
  *
- * Works with: Claude Code (Stop), Codex CLI (Stop), Gemini CLI (AfterAgent)
+ * Works with: Claude Code (Stop), Codex CLI (Stop), agy CLI (AfterAgent)
  *
  * Prevents the agent from stopping while a long-running workflow
  * (ultrawork, orchestrate, work) is active.
@@ -66,7 +66,7 @@ function inferVendorFromScriptPath(): Vendor | null {
   if (path.includes(`${join(".cursor", "hooks")}`)) return "cursor";
   if (path.includes(`${join(".qwen", "hooks")}`)) return "qwen";
   if (path.includes(`${join(".claude", "hooks")}`)) return "claude";
-  if (path.includes(`${join(".gemini", "hooks")}`)) return "gemini";
+  if (path.includes(`${join(".agy", "hooks")}`)) return "agy";
   if (path.includes(`${join(".codex", "hooks")}`)) return "codex";
   return null;
 }
@@ -75,7 +75,7 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   const event = input.hook_event_name as string | undefined;
   const byScriptPath = inferVendorFromScriptPath();
   if (byScriptPath) return byScriptPath;
-  if (event === "AfterAgent") return "gemini";
+  if (event === "AfterAgent") return "agy";
   if (event === "Stop" && "session_id" in input) return "codex";
   if (process.env.QWEN_PROJECT_DIR) return "qwen";
   return "claude";
@@ -87,8 +87,8 @@ function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
     case "codex":
       dir = (input.cwd as string) || process.cwd();
       break;
-    case "gemini":
-      dir = process.env.GEMINI_PROJECT_DIR || process.cwd();
+    case "agy":
+      dir = process.env.AGY_PROJECT_DIR || process.cwd();
       break;
     case "qwen":
       dir = process.env.QWEN_PROJECT_DIR || process.cwd();
@@ -179,7 +179,7 @@ async function main() {
   // The assistant may have included "workflow done" in its response,
   // or it may appear in transcript/content fields depending on vendor.
   const textToCheck = [
-    input.prompt_response, // Gemini AfterAgent
+    input.prompt_response, // agy AfterAgent
     input.response,
     input.content,
     input.message,

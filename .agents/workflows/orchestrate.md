@@ -1,5 +1,5 @@
 ---
-description: Automated CLI-based parallel agent execution that spawns subagents via Gemini CLI, coordinates through MCP Memory, monitors progress, and runs verification
+description: Automated CLI-based parallel agent execution that spawns subagents via agy CLI, coordinates through MCP Memory, monitors progress, and runs verification
 ---
 
 # MANDATORY RULES: VIOLATION IS FORBIDDEN
@@ -55,8 +55,8 @@ Look for a plan file:
    ┌──────────┬─────────┐
    │ Agent    │ CLI     │
    ├──────────┼─────────┤
-   │ frontend │ gemini  │
-   │ backend  │ gemini  │
+   │ frontend │ agy     │
+   │ backend  │ agy     │
    │ mobile   │ claude  │
    │ pm       │ claude  │
    └──────────┴─────────┘
@@ -112,9 +112,9 @@ Spawn native Codex custom agents using `.codex/agents/{agent}.toml` when availab
 Pass each agent its task description, API contracts, and relevant context.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn {agent_id} {prompt_file} {session_id} -w {workspace}`.
 
-### If Gemini CLI and target vendor is Gemini
+### If agy CLI and target vendor is agy
 
-Spawn native Gemini subagents using `.gemini/agents/{agent}.md` when available.
+Spawn native agy subagents using `.agy/agents/{agent}.md` when available.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn {agent_id} {prompt_file} {session_id} -w {workspace}`.
 
 ### If target vendor differs from current runtime, or native dispatch is unavailable

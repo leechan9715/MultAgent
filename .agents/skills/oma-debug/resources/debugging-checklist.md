@@ -356,7 +356,7 @@ After fixing, document in `.agents/results/bugs/`:
 
 - **Browser DevTools**: F12 (Console, Network, React DevTools)
 - **Serena MCP**: find_symbol, search_for_pattern, find_referencing_symbols
-- **Antigravity Browser**: Automated testing and reproduction
+- **agy Browser**: Automated testing and reproduction
 - **React Profiler**: Performance analysis
 - **Lighthouse**: Performance audit
 - **Git bisect**: Find when bug was introduced

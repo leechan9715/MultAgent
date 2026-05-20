@@ -19,4 +19,4 @@
  * is duplicated here intentionally. Keep the two arrays in sync by adding
  * or removing the same vendor in both files; CI does not enforce this.
  */
-export const VENDORS = ["claude", "codex", "cursor", "gemini", "qwen"] as const;
+export const VENDORS = ["claude", "codex", "cursor", "agy", "qwen"] as const;

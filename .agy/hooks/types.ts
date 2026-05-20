@@ -1,5 +1,5 @@
 // Hook-runtime types shared across Claude Code, Codex CLI, Cursor,
-// Gemini CLI, and Qwen Code. Functions live in `fs-utils.ts` and
+// agy CLI, and Qwen Code. Functions live in `fs-utils.ts` and
 // `hook-output.ts`; this file is types-only. The `Vendor` type is derived
 // from the `VENDORS` runtime constant in `constants.ts` so the two stay
 // in sync.
@@ -15,7 +15,7 @@ export interface HookInput {
   hook_event_name?: string;
   cwd?: string;
   workspace_roots?: string[];
-  // Gemini: AfterAgent fields
+  // agy: AfterAgent fields
   prompt_response?: string;
   stop_hook_active?: boolean;
   // Claude/Qwen: Stop fields

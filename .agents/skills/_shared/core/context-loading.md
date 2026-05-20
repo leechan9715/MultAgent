@@ -8,7 +8,7 @@ This saves context window and prevents confusion from irrelevant information.
 ## Loading Order (Common to All Agents)
 
 ### Always Load (Required)
-1. `SKILL.md`: Auto-loaded (provided by Antigravity)
+1. `SKILL.md`: Auto-loaded (provided by agy)
 2. `resources/execution-protocol.md`: Execution protocol
 
 ### Load at Task Start

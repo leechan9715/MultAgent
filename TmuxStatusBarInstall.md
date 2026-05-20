@@ -150,7 +150,7 @@ Ctrl + a → z
 현재 pane 확대/축소 토글.
 한 화면만 크게 보고 싶을 때 좋음.
 
-Codex + Gemini 쓸 때 예시
+Codex + agy 쓸 때 예시
 tmux new -s agents
 
 tmux 세션 만들고,
@@ -165,7 +165,7 @@ codex
 
 오른쪽에는:
 
-gemini
+agy
 
 이렇게 쓰면 됨.
 

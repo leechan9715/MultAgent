@@ -3,12 +3,12 @@
 
 # Default CLI vendor (used as fallback when oma-config.yaml is not configured)
 # For per-agent CLI mapping, see: .agents/oma-config.yaml
-active_vendor: gemini
+active_vendor: agy
 
 # Vendor configurations
 vendors:
-  gemini:
-    command: gemini
+  agy:
+    command: agy
     prompt_flag: "-p"
     output_format_flag: "--output-format"
     output_format: "json"
@@ -18,7 +18,7 @@ vendors:
     include_dirs_flag: "--include-directories"
     # JSON output parsing
     response_jq: ".response"
-    # Isolation: gemini uses current directory context
+    # Isolation: agy uses current directory context
     isolation_method: "directory"
 
   claude:

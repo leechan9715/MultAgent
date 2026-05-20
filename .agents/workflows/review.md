@@ -21,9 +21,9 @@ If the current runtime vendor is `codex`, stop immediately before Step 1.
 Do not perform scope collection, code analysis, security checks, or any other review step.
 Output only:
 
-`이 워크플로우는 Gemini 전담입니다. Gemini CLI로 넘길까요?`
+`이 워크플로우는 agy 전담입니다. agy CLI로 넘길까요?`
 
-Then wait for the Gemini handoff.
+Then wait for the agy handoff.
 
 ## Vendor Detection
 
@@ -115,7 +115,7 @@ Use the Agent tool to spawn subagent:
 ### If Codex CLI
 Request parallel subagent execution with the review scope and standards.
 
-### If Gemini CLI or Antigravity or CLI Fallback
+### If agy CLI or agy or CLI Fallback
 ```bash
 oma agent:spawn qa-agent "Review files for security, performance, accessibility, and code quality. Follow .agents/skills/oma-qa/SKILL.md standards. Report as CRITICAL/HIGH/MEDIUM/LOW with file:line and remediation." session-id
 ```
@@ -137,7 +137,7 @@ When user wants fixes too, execute review then fix then re-review loop:
 ### If Codex CLI
      Request parallel subagent execution with the issues and fix instructions.
 
-### If Gemini CLI or Antigravity or CLI Fallback
+### If agy CLI or agy or CLI Fallback
      ```bash
      oma agent:spawn backend "Fix issues: [issues]" session-id -w ./backend &
      oma agent:spawn frontend "Fix issues: [issues]" session-id -w ./frontend &

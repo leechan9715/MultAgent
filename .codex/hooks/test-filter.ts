@@ -1,5 +1,5 @@
 // PreToolUse hook — Filter test output to show only failures
-// Works with: Claude Code, Codex CLI, Gemini CLI, Qwen Code
+// Works with: Claude Code, Codex CLI, agy CLI, Qwen Code
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -14,7 +14,7 @@ function inferVendorFromScriptPath(): Vendor | null {
   if (path.includes(`${join(".cursor", "hooks")}`)) return "cursor";
   if (path.includes(`${join(".qwen", "hooks")}`)) return "qwen";
   if (path.includes(`${join(".claude", "hooks")}`)) return "claude";
-  if (path.includes(`${join(".gemini", "hooks")}`)) return "gemini";
+  if (path.includes(`${join(".agy", "hooks")}`)) return "agy";
   if (path.includes(`${join(".codex", "hooks")}`)) return "codex";
   return null;
 }
@@ -23,7 +23,7 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   const event = input.hook_event_name as string | undefined;
   const byScriptPath = inferVendorFromScriptPath();
   if (byScriptPath) return byScriptPath;
-  if (event === "BeforeTool") return "gemini";
+  if (event === "BeforeTool") return "agy";
   if (event === "PreToolUse" && "session_id" in input) return "codex";
   if (process.env.QWEN_PROJECT_DIR) return "qwen";
   return "claude";
@@ -35,8 +35,8 @@ function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
     case "codex":
       dir = (input.cwd as string) || process.cwd();
       break;
-    case "gemini":
-      dir = process.env.GEMINI_PROJECT_DIR || process.cwd();
+    case "agy":
+      dir = process.env.AGY_PROJECT_DIR || process.cwd();
       break;
     case "qwen":
       dir = process.env.QWEN_PROJECT_DIR || process.cwd();
@@ -52,8 +52,8 @@ function getHookDir(vendor: Vendor): string {
   switch (vendor) {
     case "codex":
       return ".codex/hooks";
-    case "gemini":
-      return ".gemini/hooks";
+    case "agy":
+      return ".agy/hooks";
     case "qwen":
       return ".qwen/hooks";
     default:
@@ -127,7 +127,7 @@ if (!raw.trim()) process.exit(0);
 
 const input: PreToolUseInput = JSON.parse(raw);
 
-// Gemini uses run_shell_command; Claude-family uses Bash.
+// agy uses run_shell_command; Claude-family uses Bash.
 if (input.tool_name !== "Bash" && input.tool_name !== "run_shell_command") {
   process.exit(0);
 }
