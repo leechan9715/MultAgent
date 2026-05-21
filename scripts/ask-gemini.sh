@@ -13,14 +13,52 @@ if [ ! -f "$PANE_FILE" ]; then
 fi
 
 PANE_ID="$(cat "$PANE_FILE")"
-PROMPT="$*"
-STATE_FILE="$PROJECT_ROOT/.ask-gemini-last"
-DEDUPE_SECONDS="${ASK_DEDUPE_SECONDS:-30}"
+PROMPT=""
+DONE_MODE=0
 
-if [ -z "$PROMPT" ]; then
-  echo "Usage: ./scripts/ask-gemini.sh \"your prompt\""
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --done)
+      DONE_MODE=1
+      shift
+      ;;
+    *)
+      if [ -z "$PROMPT" ]; then
+        PROMPT="$1"
+      else
+        PROMPT="$PROMPT $1"
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [ -z "$PROMPT" ] && [ "$DONE_MODE" -eq 0 ]; then
+  echo "Usage: ./scripts/ask-gemini.sh [--done] \"your prompt\""
   exit 1
 fi
+
+# Detect language from oma-config.yaml
+LANG_SETTING=$(grep "^language:" "$PROJECT_ROOT/.agents/oma-config.yaml" | awk '{print $2}' || echo "en")
+case "$LANG_SETTING" in
+  ko) DONE_PHRASE="워크플로우 종료" ;;
+  ja) DONE_PHRASE="ワークフロー終了" ;;
+  zh) DONE_PHRASE="工作流结束" ;;
+  *)  DONE_PHRASE="workflow done" ;;
+esac
+
+# Append done phrase if flag is set
+if [ "$DONE_MODE" -eq 1 ]; then
+  if [ -n "$PROMPT" ]; then
+    PROMPT="$PROMPT ($DONE_PHRASE)"
+  else
+    PROMPT="$DONE_PHRASE"
+  fi
+fi
+
+STATE_FILE="$PROJECT_ROOT/.ask-gemini-last"
+DEDUPE_SECONDS="${ASK_DEDUPE_SECONDS:-30}"
 
 PANE_PID="$(tmux display-message -p -t "$PANE_ID" '#{pane_pid}' 2>/dev/null || true)"
 PANE_COMMAND="$(tmux display-message -p -t "$PANE_ID" '#{pane_current_command}' 2>/dev/null || true)"
