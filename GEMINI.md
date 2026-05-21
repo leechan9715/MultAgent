@@ -251,15 +251,47 @@ Codex에게 짧은 명령만 보내지 않는다. 반드시 다음 내용을 포
 - **보고서 저장 없는 임의 종료 금지**: 코드가 완벽히 검증되지 않았거나, 최종 작업 내역이 `docs/log/` 내 지정된 결과 로그 파일에 작성 및 저장되지 않은 상태에서 프로세스를 임의로 종료하는 행위 금지
 - **이력 덮어쓰기 금지**: `docs/log/` 폴더에 위치한 누적형 마크다운 장부들에 기재된 기존 히스토리를 임의로 덮어쓰거나 지워버리는 행위 엄격히 금지.
 
-### Codex 관련 금지사항
+## HIGH PRIORITY: Gemini Runtime Override [TARGET: GEMINI ONLY]
 
-- 사용자 승인 없이 Codex CLI로 보내지 않는다. 단, 위 "자동 Codex 위임 예외"에 해당하는 경우는 이미 사용자 승인 범위에 포함된 것으로 본다.
-- **리사이드 업무 일체 금지**: 리서치, 조사, 비교, 기획, 코드 리뷰, 분석, 아이디어 정리만 필요한 작업은 Codex로 넘기거나 직접 처리하지 않는다. (해당 업무는 무조건 agy의 전담 영역임)
-- **기계적 복사·붙여넣기로 인한 코드 파괴 금지**: agy가 검토한 피드백 내용을 소스 코드에 반영할 때, 아무 생각 없이 기계적으로 코드를 복사·붙여넣기 하여 문법이나 맥락을 깨뜨리지 않도록 주의할 것. Codex는 오직 '안전하고 정확한 코드 구현'에만 집중해야 함.
-- Codex에게 민감한 정보, API 키, 비밀번호, 토큰을 포함하지 않는다.
-- Codex가 수정한 결과는 반드시 diff와 테스트 결과를 확인한다. Git 저장소가 아니라 diff 확인이 불가능하면 변경 파일 목록과 변경 요약을 확인한다.
-- **무검증 일괄 처리 강제 금지**: Codex가 중간 단계의 자가 테스트(`run_command`)를 거치지 않고 검증 없이 모든 파일을 한 번에 무작정 일괄 수정하도록 지시하는 행위 금지. (반드시 단계별 자가 검증 루프를 동반한 일괄 처리를 지향함)
-- **코드 미검토 승인 금지**: Codex가 전송한 요약 보고서만 읽고, 실제 수정된 코드를 직접 파일 조회 명령 등으로 열어 검토하지 않은 채 최종 승인하거나 다음 단계로 넘어가는 행위 금지
-- **검토 없는 작업 완료 간주 금지**: 코딩을 마쳤다고 해서 agy의 상세 코드 검토와 최종 승인을 거치지 않고 독단적으로 작업을 종료하거나 완료 선언을 하는 행위 금지.
-- **보고서 저장 없는 임의 종료 금지**: 코드가 완벽히 검증되지 않았거나, 최종 작업 내역이 `docs/log/` 내 지정된 결과 로그 파일에 작성 및 저장되지 않은 상태에서 프로세스를 임의로 종료하는 행위 금지
-- **이력 덮어쓰기 금지**: `docs/log/` 폴더에 위치한 누적형 마크다운 장부들에 기재된 기존 히스토리를 임의로 덮어쓰거나 지워버리는 행위 엄격히 금지.
+이 파일은 `AGY.md`에서 복사된 기반 문서를 Gemini CLI용으로 재사용한다. 위 커스텀 규칙에 남아 있는 `agy`, `AGY`, `.agy`, `AGY_PROJECT_DIR`, `ask-agy.sh`, `.agy-pane` 표현은 Gemini CLI 실행 중에는 아래처럼 해석한다.
+
+- `agy` 또는 `AGY` -> `Gemini`
+- `.agy/` -> `.gemini/`
+- `AGY_PROJECT_DIR` -> `GEMINI_PROJECT_DIR`
+- `AGY.md` -> `GEMINI.md`
+- `./scripts/ask-agy.sh` -> `./scripts/ask-gemini.sh`
+- `.agy-pane` -> `.gemini-pane`
+- `AUTO_FIX_FROM_AGY_REVIEW` -> `AUTO_FIX_FROM_GEMINI_REVIEW`
+
+### Gemini Hook Location Note
+
+Gemini CLI의 실제 런타임 hook 파일은 `.gemini/hooks/`에 있다. `.gemini/settings.json`은 Gemini 공식 workspace settings 위치를 사용하며, hook command는 프로젝트 루트 기준 상대 경로로 `.gemini/hooks/*.ts`를 실행한다.
+
+### Append-Only Ledger Protocol [Gemini/Codex Collaboration]
+
+Gemini/Codex 협업도 agy/Codex와 동일한 이력 누적형 Markdown 장부 방식을 사용한다. 기존 이력은 덮어쓰지 않고 항상 파일 하단에 새 섹션을 추가한다.
+
+- **수정 계획 장부(Gemini 작성, Codex 읽기)**: `docs/log/refactoring_plan.md`
+- **수정 보고 장부(Codex 작성, Gemini 읽기)**: `docs/log/modification_log.md`
+
+Codex에게 자동 수정 위임을 보낼 때 첫 줄 marker는 반드시 아래 값을 사용한다.
+
+```text
+AUTO_FIX_FROM_GEMINI_REVIEW
+```
+
+Gemini가 Codex로 보낼 때는 아래 명령을 사용한다.
+
+```bash
+./scripts/ask-codex.sh "<Codex에게 보낼 프롬프트>"
+```
+
+Codex 수정 완료 보고를 받을 때는 아래 명령이 사용된다.
+
+```bash
+./scripts/ask-gemini.sh "docs/log/modification_log.md 에 신규 수정 보고 섹션을 추가 저장하였습니다. 해당 증분 섹션에 대한 파일 직접 검토를 요청드립니다."
+```
+
+### Gemini Role
+
+Gemini는 agy와 같은 전략/검토 보조 역할을 맡는다. 리서치, 비교 분석, 기획 정리, QA 리뷰, 문서 검토, UI/UX 방향성 검토는 Gemini가 처리하고, 코드 수정, 리팩토링, 파일 변경, 테스트 실행, 빌드/런타임 오류 수정은 Codex에게 위임한다.
