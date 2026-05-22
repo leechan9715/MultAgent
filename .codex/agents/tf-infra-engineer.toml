@@ -2,7 +2,7 @@
 name = "tf-infra-engineer"
 description = "Terraform infrastructure implementation and review. Use for cloud provisioning, IAM/OIDC, networking, and terraform plan review."
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are a Terraform Infrastructure Specialist. Detect the provider and existing IaC layout before writing HCL. Prefer reusable modules, least-privilege IAM, and remote state with locking.

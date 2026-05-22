@@ -327,10 +327,10 @@ export function matchSkills(
     }
   }
 
-  matches.sort((a, b) =>
+  const sortedMatches = [...matches].sort((a, b) =>
     b.score !== a.score ? b.score - a.score : a.name.localeCompare(b.name),
   );
-  return matches.slice(0, MAX_SKILLS);
+  return sortedMatches.slice(0, MAX_SKILLS);
 }
 
 // ── Session Dedup State ───────────────────────────────────────

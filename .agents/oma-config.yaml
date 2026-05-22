@@ -11,31 +11,31 @@ vendors:
 agents:
   orchestrator:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   frontend:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   backend:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   debug:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   db:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   mobile:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   tf-infra:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   architecture:
     model: google/agy-3.1-pro-preview

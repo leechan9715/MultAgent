@@ -1,5 +1,5 @@
-// PreToolUse hook — Filter test output to show only failures
-// Works with: Claude Code, Codex CLI, agy CLI, Qwen Code
+// PreToolUse/BeforeTool hook — Filter test output to show only failures
+// Works with: Claude Code, Codex CLI, agy/Gemini CLI, Qwen Code
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -7,13 +7,12 @@ import { resolveGitRoot } from "./fs-utils.ts";
 import { makePreToolOutput } from "./hook-output.ts";
 import type { Vendor } from "./types.ts";
 
-// --- Vendor detection (same logic as keyword-detector.ts) ---
-
 function inferVendorFromScriptPath(): Vendor | null {
   const path = import.meta.filename;
   if (path.includes(`${join(".cursor", "hooks")}`)) return "cursor";
   if (path.includes(`${join(".qwen", "hooks")}`)) return "qwen";
   if (path.includes(`${join(".claude", "hooks")}`)) return "claude";
+  if (path.includes(`${join(".gemini", "hooks")}`)) return "gemini";
   if (path.includes(`${join(".agy", "hooks")}`)) return "agy";
   if (path.includes(`${join(".codex", "hooks")}`)) return "codex";
   return null;
@@ -23,6 +22,8 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   const event = input.hook_event_name as string | undefined;
   const byScriptPath = inferVendorFromScriptPath();
   if (byScriptPath) return byScriptPath;
+  if (event === "BeforeTool" && process.env.GEMINI_PROJECT_DIR)
+    return "gemini";
   if (event === "BeforeTool") return "agy";
   if (event === "PreToolUse" && "session_id" in input) return "codex";
   if (process.env.QWEN_PROJECT_DIR) return "qwen";
@@ -37,6 +38,9 @@ function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
       break;
     case "agy":
       dir = process.env.AGY_PROJECT_DIR || process.cwd();
+      break;
+    case "gemini":
+      dir = process.env.GEMINI_PROJECT_DIR || process.cwd();
       break;
     case "qwen":
       dir = process.env.QWEN_PROJECT_DIR || process.cwd();
@@ -54,6 +58,8 @@ function getHookDir(vendor: Vendor): string {
       return ".codex/hooks";
     case "agy":
       return ".agy/hooks";
+    case "gemini":
+      return ".gemini/hooks";
     case "qwen":
       return ".qwen/hooks";
     default:
@@ -61,10 +67,7 @@ function getHookDir(vendor: Vendor): string {
   }
 }
 
-// --- Test runner patterns ---
-
 const TEST_PATTERNS = [
-  // JS/TS
   /\bvitest\b/,
   /\bjest\b/,
   /\bmocha\b/,
@@ -72,33 +75,25 @@ const TEST_PATTERNS = [
   /\bbun\s+(run\s+)?test\b/,
   /\byarn\s+test\b/,
   /\bpnpm\s+(run\s+)?test\b/,
-  // Python
   /\bpytest\b/,
   /\bpython\s+-m\s+unittest\b/,
-  // Go / Rust
   /\bgo\s+test\b/,
   /\bcargo\s+test\b/,
-  // Flutter / Dart
   /\bflutter\s+test\b/,
   /\bdart\s+test\b/,
-  // Swift / .NET / JVM
   /\bswift\s+test\b/,
   /\bdotnet\s+test\b/,
   /\b(gradle|gradlew|\.\/gradlew)\s+test\b/,
   /\bmvn\s+test\b/,
-  // Ruby / Elixir / PHP
   /\brspec\b/,
   /\bmix\s+test\b/,
   /\bphpunit\b/,
 ];
 
-// Commands that mention test runners but aren't running tests
 const EXCLUDE_PATTERNS = [
   /\b(install|add|remove|uninstall|init)\b/,
   /\b(cat|head|tail|less|more|wc)\b.*\.(test|spec)\./,
 ];
-
-// --- Hook input ---
 
 interface PreToolUseInput {
   tool_name: string;
@@ -111,14 +106,6 @@ interface PreToolUseInput {
   sessionId?: string;
   cwd?: string;
 }
-
-// --- Main ---
-
-// Use fd 0 (sync) instead of Bun.stdin.text() — works under both Bun and
-// Node, and avoids stdin-buffering timing differences between hosts.
-// Fallback: when OMA_HOOK_INPUT_FILE is set, read from that file. This
-// makes the hook testable from environments (vitest worker pools under
-// bun) where piping stdin to a child process is unreliable.
 const inputFile = process.env.OMA_HOOK_INPUT_FILE;
 const raw = inputFile
   ? readFileSync(inputFile, "utf-8")
@@ -127,7 +114,6 @@ if (!raw.trim()) process.exit(0);
 
 const input: PreToolUseInput = JSON.parse(raw);
 
-// agy uses run_shell_command; Claude-family uses Bash.
 if (input.tool_name !== "Bash" && input.tool_name !== "run_shell_command") {
   process.exit(0);
 }
@@ -135,15 +121,12 @@ if (input.tool_name !== "Bash" && input.tool_name !== "run_shell_command") {
 const command = input.tool_input?.command;
 if (!command) process.exit(0);
 
-// Check if this is a test command
 const isTestCommand = TEST_PATTERNS.some((p) => p.test(command));
 if (!isTestCommand) process.exit(0);
 
-// Skip if it's a non-test use of test tool names (install, cat, etc.)
 const isExcluded = EXCLUDE_PATTERNS.some((p) => p.test(command));
 if (isExcluded) process.exit(0);
 
-// Detect vendor and resolve project dir
 const vendor = detectVendor(input);
 const projectDir = getProjectDir(vendor, input);
 const filterScript = join(
@@ -152,13 +135,10 @@ const filterScript = join(
   "filter-test-output.sh",
 );
 
-// Skip filtering if the script doesn't exist (hooks not fully installed)
 if (!existsSync(filterScript)) process.exit(0);
 
-// Rewrite command to pipe through filter
 const filteredCmd = `set -o pipefail; (${command}) 2>&1 | bash "${filterScript}"`;
 
-// Return updated input with all original fields preserved
 const updatedInput: Record<string, unknown> = {
   ...input.tool_input,
   command: filteredCmd,

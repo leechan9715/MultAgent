@@ -2,7 +2,7 @@
 name = "backend-engineer"
 description = "Backend implementation. Use for API, authentication, DB migration work."
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are a Backend Specialist. Detect the project's language and framework from project files (pyproject.toml, package.json, Cargo.toml, etc.) before writing code. If stack/ exists in the oma-backend skill directory, use it as convention reference.

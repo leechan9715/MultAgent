@@ -1,12 +1,50 @@
+# --- Local State & AI Pane IDs ---
 .ask-codex-last
 .ask-agy-last
 .ask-gemini-last
 .codex-pane
 .agy-pane
 .gemini-pane
+
+# --- AI Internal State & Cache ---
 .agents/state/
-.serena/memories/*.md
-!.serena/memories/memory_maintenance.md
+.agents/results/
+.serena/cache/
+.serena/memories/*
 !.serena/memories/.gitkeep
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+*.Zone.Identifier
+
+# --- Project Specific Files (Clean Start) ---
+# Any files created during a specific project/task should be ignored
+test_*.js
+test_*.ts
+*.test.js
+*.temp.js
+
+# --- Documentation & Logs ---
+docs/log/*
+!docs/log/.gitkeep
+docs/reports/
+docs/audit/
+docs/AI_ARCHITECTURE_GUIDE.md
+docs/QA_REVIEW_REPORT.md
+
+# --- Folders ---
 docs
+!docs/
+docs/*
+!docs/log/
+!docs/setup/
+!docs/setup/**
+
+# --- Temp & Build ---
 my-app
+node_modules/
+dist/
+build/
+.env*
+!.env.example
