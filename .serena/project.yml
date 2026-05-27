@@ -59,7 +59,7 @@ excluded_tools: []
 # (contrary to the memories, which are loaded on demand).
 initial_prompt: ""
 # the name by which the project can be referenced within Serena
-project_name: "TestProject"
+project_name: "MultAgent"
 
 # list of tools to include that would otherwise be disabled (particularly optional tools that are disabled by default).
 # This extends the existing inclusions (e.g. from the global configuration).

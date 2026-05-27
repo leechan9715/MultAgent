@@ -94,9 +94,9 @@ Native CLI executor path: `codex exec "@{agent} ..."` using the generated agent 
 Pass each agent its task description, API contracts, and relevant context.
 If native dispatch is not verified in the current runtime, fall back to `oma agent:spawn`.
 
-### If Gemini CLI and target vendor is Gemini
-Use native Gemini subagents when available, otherwise fall back to `oma agent:spawn`.
-Native CLI executor path: `gemini -p "@{agent} ..."` using `.gemini/agents/{agent}.md`.
+### If agy CLI and target vendor is agy
+Use native agy subagents when available, otherwise fall back to `oma agent:spawn`.
+Native CLI executor path: `agy -p "@{agent} ..."` using `.agy/agents/{agent}.md`.
 
 ### If target vendor differs from current runtime, or native dispatch is unavailable
 ```bash

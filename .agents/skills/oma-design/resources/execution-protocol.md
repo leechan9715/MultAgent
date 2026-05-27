@@ -35,7 +35,7 @@ If the user wants to use Stitch for design extraction or generation:
 1. Check if Stitch MCP is available: look for stitch-related tools
 2. If not available, offer setup:
    - Load `resources/stitch-integration.md` for client-specific setup instructions
-   - Ask which client they use (Claude Code / Cursor / VS Code / Gemini CLI / Codex)
+   - Ask which client they use (Claude Code / Cursor / VS Code / agy CLI / Codex)
    - Provide the matching setup command
 3. If user declines: proceed without Stitch (all phases work standalone)
 

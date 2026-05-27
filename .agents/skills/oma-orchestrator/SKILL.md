@@ -36,7 +36,7 @@ Automatically orchestrate multi-agent execution with task decomposition, native/
 - Review history and retry/remediation status when loops fail
 
 ### Dependencies
-- `.agents/oma-config.yaml`, `.codex/agents/*.toml`, `.gemini/agents/*.md`, or fallback `oh-my-ag agent:spawn`
+- `.agents/oma-config.yaml`, `.codex/agents/*.toml`, `.agy/agents/*.md`, or fallback `oh-my-ag agent:spawn`
 - Memory provider config, subagent prompt template, scripts, task templates, verify script, and session metrics
 
 ### Control-flow features
@@ -126,7 +126,7 @@ When native runtime dispatch is available, prefer the runtime-specific native pa
 Current native executor paths:
 - Claude Code: `claude --agent <agent>`
 - Codex CLI: `codex exec "@agent ..."` using `.codex/agents/*.toml`
-- Gemini CLI: `gemini -p "@agent ..."` using `.gemini/agents/*.md`
+- agy CLI: `agy -p "@agent ..."` using `.agy/agents/*.md`
 
 Vendor-specific execution protocols are injected automatically for fallback CLI runs.
 

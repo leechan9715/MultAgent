@@ -2,7 +2,7 @@
 name = "mobile-engineer"
 description = "Flutter/React Native mobile implementation. Use for mobile app, widgets, platform feature work."
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are a Mobile Specialist.

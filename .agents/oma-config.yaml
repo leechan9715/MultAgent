@@ -6,57 +6,57 @@ model_preset: mixed
 
 vendors:
   - codex
-  - gemini
+  - agy
 
 agents:
   orchestrator:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   frontend:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   backend:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   debug:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   db:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   mobile:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   tf-infra:
     model: openai/gpt-5.5
-    effort: high
+    effort: medium
 
   architecture:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   pm:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   qa:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   design:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   docs:
-    model: google/gemini-3.1-pro-preview
+    model: google/agy-3.1-pro-preview
     effort: medium
 
   retrieval:
-    model: google/gemini-3.1-flash-lite
+    model: google/agy-3.1-flash-lite
     effort: medium

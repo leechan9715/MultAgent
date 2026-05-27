@@ -13,14 +13,61 @@ if [ ! -f "$PANE_FILE" ]; then
 fi
 
 PANE_ID="$(cat "$PANE_FILE")"
-PROMPT="$*"
-STATE_FILE="$PROJECT_ROOT/.ask-codex-last"
-DEDUPE_SECONDS="${ASK_DEDUPE_SECONDS:-30}"
+PROMPT=""
+DONE_MODE=0
 
-if [ -z "$PROMPT" ]; then
-  echo "Usage: ./scripts/ask-codex.sh \"your prompt\""
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --done)
+      DONE_MODE=1
+      shift
+      ;;
+    *)
+      if [ -z "$PROMPT" ]; then
+        PROMPT="$1"
+      else
+        PROMPT="$PROMPT $1"
+      fi
+      shift
+      ;;
+  esac
+done
+
+if [ -z "$PROMPT" ] && [ "$DONE_MODE" -eq 0 ]; then
+  echo "Usage: ./scripts/ask-codex.sh [--done] \"your prompt\""
   exit 1
 fi
+
+# Detect language from oma-config.yaml
+LANG_SETTING=$(grep "^language:" "$PROJECT_ROOT/.agents/oma-config.yaml" | awk '{print $2}' || echo "en")
+case "$LANG_SETTING" in
+  ko) DONE_PHRASE="워크플로우 종료" ;;
+  ja) DONE_PHRASE="ワークフロー終了" ;;
+  zh) DONE_PHRASE="工作流结束" ;;
+  *)  DONE_PHRASE="workflow done" ;;
+esac
+
+# Auto-inject 'work' keyword for review markers to trigger persistent mode
+case "$PROMPT" in
+  AUTO_FIX_FROM_AGY_REVIEW*|AUTO_FIX_FROM_GEMINI_REVIEW*)
+    if [[ ! "$PROMPT" =~ ^work[[:space:]] ]]; then
+      PROMPT="work $PROMPT"
+    fi
+    ;;
+esac
+
+# Append done phrase if flag is set
+if [ "$DONE_MODE" -eq 1 ]; then
+  if [ -n "$PROMPT" ]; then
+    PROMPT="$PROMPT ($DONE_PHRASE)"
+  else
+    PROMPT="$DONE_PHRASE"
+  fi
+fi
+
+STATE_FILE="$PROJECT_ROOT/.ask-codex-last"
+DEDUPE_SECONDS="${ASK_DEDUPE_SECONDS:-30}"
 
 PANE_PID="$(tmux display-message -p -t "$PANE_ID" '#{pane_pid}' 2>/dev/null || true)"
 PANE_COMMAND="$(tmux display-message -p -t "$PANE_ID" '#{pane_current_command}' 2>/dev/null || true)"
@@ -34,11 +81,13 @@ fi
 
 PROMPT_HASH="$(printf '%s' "$PROMPT" | sha256sum | awk '{print $1}')"
 PROMPT_KEY="$PROMPT_HASH"
+
 case "$PROMPT" in
-  AUTO_FIX_FROM_GEMINI_REVIEW*)
-    PROMPT_KEY="AUTO_FIX_FROM_GEMINI_REVIEW_${PROMPT_HASH}"
+  *AUTO_FIX_FROM_AGY_REVIEW*|*AUTO_FIX_FROM_GEMINI_REVIEW*)
+    PROMPT_KEY="AUTO_FIX_FROM_REVIEW_${PROMPT_HASH}"
     ;;
 esac
+
 NOW="$(date +%s)"
 
 if [ "${ASK_CODEX_ALLOW_DUPLICATE:-0}" != "1" ] && [ -f "$STATE_FILE" ]; then

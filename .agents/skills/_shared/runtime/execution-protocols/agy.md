@@ -1,4 +1,4 @@
-# Execution Protocol (Gemini)
+# Execution Protocol (agy)
 
 When running as a CLI subagent, follow this protocol for shared state coordination.
 

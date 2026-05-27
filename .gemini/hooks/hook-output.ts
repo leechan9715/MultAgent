@@ -1,5 +1,5 @@
 // Vendor-specific hook output builders.
-// Each runtime (Claude Code, Codex CLI, Cursor, Gemini CLI, Qwen Code)
+// Each runtime (Claude Code, Codex CLI, Cursor, agy/Gemini CLI, Qwen Code)
 // expects a slightly different stdout JSON shape; centralize the dialect
 // translation here so individual hooks can stay vendor-agnostic.
 
@@ -7,6 +7,7 @@ import type { Vendor } from "./types.ts";
 
 function defaultHookEventName(vendor: Vendor): string {
   switch (vendor) {
+    case "agy":
     case "gemini":
       return "BeforeAgent";
     case "claude":
@@ -42,6 +43,7 @@ export function makePromptOutput(
           additionalContext,
         },
       });
+    case "agy":
     case "gemini":
       return JSON.stringify({
         hookSpecificOutput: {
@@ -67,8 +69,9 @@ export function makeBlockOutput(vendor: Vendor, reason: string): string {
     case "cursor":
     case "qwen":
       return JSON.stringify({ decision: "block", reason });
+    case "agy":
     case "gemini":
-      // Gemini AfterAgent uses "deny" to reject response and force retry
+      // Gemini-family AfterAgent uses "deny" to reject response and force retry
       return JSON.stringify({ decision: "deny", reason });
   }
 }
@@ -78,6 +81,7 @@ export function makePreToolOutput(
   updatedInput: Record<string, unknown>,
 ): string {
   switch (vendor) {
+    case "agy":
     case "gemini":
       return JSON.stringify({
         decision: "rewrite",

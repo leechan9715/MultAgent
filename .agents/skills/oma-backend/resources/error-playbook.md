@@ -68,7 +68,7 @@ Do NOT stop or ask for help until you have exhausted the playbook.
 
 ---
 
-## Rate Limit / Quota Error (Gemini API)
+## Rate Limit / Quota Error (agy API)
 
 **Symptoms**: `429`, `RESOURCE_EXHAUSTED`, `rate limit exceeded`
 

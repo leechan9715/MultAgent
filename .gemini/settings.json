@@ -6,13 +6,13 @@
           {
             "name": "keyword-detector",
             "type": "command",
-            "command": "bun \"$GEMINI_PROJECT_DIR/.gemini/hooks/keyword-detector.ts\"",
+            "command": "bun .gemini/hooks/keyword-detector.ts",
             "timeout": 5000
           },
           {
             "name": "skill-injector",
             "type": "command",
-            "command": "bun \"$GEMINI_PROJECT_DIR/.gemini/hooks/skill-injector.ts\"",
+            "command": "bun .gemini/hooks/skill-injector.ts",
             "timeout": 3000
           }
         ],
@@ -25,7 +25,7 @@
           {
             "name": "test-filter",
             "type": "command",
-            "command": "bun \"$GEMINI_PROJECT_DIR/.gemini/hooks/test-filter.ts\"",
+            "command": "bun .gemini/hooks/test-filter.ts",
             "timeout": 5000
           }
         ],
@@ -38,7 +38,7 @@
           {
             "name": "persistent-mode",
             "type": "command",
-            "command": "bun \"$GEMINI_PROJECT_DIR/.gemini/hooks/persistent-mode.ts\"",
+            "command": "bun .gemini/hooks/persistent-mode.ts",
             "timeout": 5000
           }
         ],

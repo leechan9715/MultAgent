@@ -1,226 +1,143 @@
-<!-- OMA:START — managed by oh-my-agent. Do not edit this block manually. -->
+# GEMINI.md
 
-# oh-my-agent
+Gemini-specific guidance for this project.
 
-## Architecture
+## Common Rules
 
-- **SSOT**: `.agents/` directory (do not modify directly)
-- **Response language**: Follows `language` in `.agents/oma-config.yaml`
-- **Skills**: `.agents/skills/` (domain specialists)
-- **Workflows**: `.agents/workflows/` (multi-step orchestration)
-- **Subagents**: Same-vendor native dispatch via `.gemini/agents/{name}.md`; cross-vendor or unsupported cases fall back to `oma agent:spawn {agent} {prompt} {sessionId}`
+- `AGENTS.md` is the absolute SSOT for shared OMA, project, ledger, workflow, and delegation rules.
+- Read and follow `AGENTS.md` completely before every task.
+- Do not copy the managed OMA block into this file.
+- All decisions, plans, and audit results must be written to physical files (`docs/log/`) for persistence.
+- **Shared Knowledge vs Local Memory**:
+    - 모든 에이전트는 프로젝트의 '영구적인 공유 지식'을 `GEMINI.md` 또는 `docs/log/`에 기록해야 함.
+    - `.serena/memories/` 폴더는 로컬 캐시/임시 기억 용도로만 사용하며, 해당 내용은 Git에 포함되지 않으므로 다른 사용자에게 공유되지 않음을 숙지할 것.
 
-## Per-Agent Dispatch
+## Gemini Role (Review Agent)
 
-1. Resolve `target_vendor_for_agent` from `.agents/oma-config.yaml`.
-2. If `target_vendor_for_agent === current_runtime_vendor`, use the runtime's native subagent path.
-3. If vendors differ, or native subagents are unavailable, use `oma agent:spawn` for that agent only.
+Gemini CLI 1.0 acts as the lead Review Agent in the Codex/Gemini collaboration model.
 
-## Code Search
+Gemini CLI 1.0 owns:
+- **Master Planning**: Leads the end-to-end project design lifecycle (29 steps).
+- **Phase 0: Snapshot**: Records the original state before modification.
+- **Phase 1: Surgical Planning**: Writes high-precision instructions for Codex.
+- **Phase 3: Zero-Defect Deep Audit**: Conducts destructive testing & Silent Auto-Loop.
 
-Prefer **serena MCP** tools over native find/grep when locating code — they are symbol-aware and faster on large repos. Fall back to native Read / Glob / Grep only when serena is unavailable or for plain file content reads.
+---
 
-| Task                                                     | Preferred tool             |
-| -------------------------------------------------------- | -------------------------- |
-| Locate a symbol definition (class / function / variable) | `find_symbol`              |
-| Find references / callers of a symbol                    | `find_referencing_symbols` |
-| Outline a file's top-level symbols                       | `get_symbols_overview`     |
-| Pattern or regex search across the codebase              | `search_for_pattern`       |
-| Find a file by name                                      | `find_file`                |
-| List directory contents                                  | `list_dir`                 |
+## [Phase 0] 작업 전 스냅샷 (의무)
 
-## Workflows
+모든 수정 작업 시작 전, 대상 파일의 원본 상태를 장부에 기록한다. 스냅샷은 롤백의 유일한 근거다.
 
-Execute by naming the workflow in your prompt. Keywords are auto-detected via hooks.
+```markdown
+## [Phase 0] 스냅샷 — YYYY-MM-DD HH:MM
+- 대상 파일:
+- 파일 해시(또는 핵심 함수 원본):
+(원본 코드 또는 핵심 로직)
+- 스냅샷 목적: 롤백 기준점 확보
+```
 
-| Workflow    | File             | Description                                                                   |
-| ----------- | ---------------- | ----------------------------------------------------------------------------- |
-| orchestrate | `orchestrate.md` | Parallel subagents + Review Loop                                              |
-| work        | `work.md`        | Step-by-step with remediation loop                                            |
-| ultrawork   | `ultrawork.md`   | 5-Phase Gate Loop (11 reviews)                                                |
-| plan        | `plan.md`        | PM task breakdown                                                             |
-| brainstorm  | `brainstorm.md`  | Design-first ideation                                                         |
-| review      | `review.md`      | QA audit                                                                      |
-| debug       | `debug.md`       | Root cause + minimal fix                                                      |
-| deepsec     | `deepsec.md`     | Drive `oma-deepsec` end-to-end (setup / scan / pr-review / matchers / triage) |
-| scm         | `scm.md`         | SCM + Git operations + Conventional Commits                                   |
-| docs        | `docs.md`        | Documentation drift verify + sync                                             |
-| recap       | `recap.md`       | Daily / period AI conversation recap                                          |
+---
 
-To execute: read and follow `.agents/workflows/{name}.md` step by step.
+## [Phase 1] 초정밀 분석 및 상세 지시 (Surgical Planning)
 
-## Auto-Detection
+코드베이스를 심층 분석한 뒤 아래 **고정 템플릿**으로 Surgical Plan을 작성하여 Codex에게 전달한다.
 
-Hooks: `BeforeAgent` (keyword detection), `BeforeTool`, `AfterAgent` (persistent mode)
-Keywords defined in `.agents/hooks/core/triggers.json` (multi-language).
-Persistent workflows (orchestrate, ultrawork, work) block termination until complete.
-Deactivate: say "workflow done".
+```markdown
+### [Surgical Plan vN] YYYY-MM-DD HH:MM
 
-## Rules
+**대상 파일**:
+**참조 기획/설계 파일**: (필수 참조 파일 목록)
+**대상 함수 / 라인**:
 
-1. **Do not modify `.agents/` files** (SSOT protection).
-2. Workflows execute via keyword detection or explicit naming, never self-initiated.
-3. Response language follows `.agents/oma-config.yaml`
+**수정 전 로직**:
+(코드 또는 의사코드)
 
-## Project Rules
+**수정 후 로직**:
+(코드 또는 의사코드)
 
-Read the relevant file from `.agents/rules/` when working on matching code.
+**예상 부작용**:
+**부작용 방지책**:
 
-| Rule           | File                              | Scope                    |
-| -------------- | --------------------------------- | ------------------------ |
-| backend        | `.agents/rules/backend.md`        | on request               |
-| commit         | `.agents/rules/commit.md`         | on request               |
-| database       | `.agents/rules/database.md`       | \*_/_.{sql,prisma}       |
-| debug          | `.agents/rules/debug.md`          | on request               |
-| design         | `.agents/rules/design.md`         | on request               |
-| dev-workflow   | `.agents/rules/dev-workflow.md`   | on request               |
-| frontend       | `.agents/rules/frontend.md`       | \*_/_.{tsx,jsx,css,scss} |
-| i18n-guide     | `.agents/rules/i18n-guide.md`     | always                   |
-| infrastructure | `.agents/rules/infrastructure.md` | \*_/_.{tf,tfvars,hcl}    |
-| market         | `.agents/rules/market.md`         | on request               |
-| mobile         | `.agents/rules/mobile.md`         | \*_/_.{dart,swift,kt}    |
-| quality        | `.agents/rules/quality.md`        | on request               |
+**완료 기준 (DoD)**:
+- [ ] 심각 이슈 0건 / 경고 이슈 신규 발생 0건
+- [ ] 파괴 테스트 4회 전부 pass
+- [ ] 수정 전/후 동작 동일성 검증 완료
+```
 
-## <!-- OMA:END -->
+---
 
-<!-- Custom project rules must stay below OMA:END so the managed OMA block remains untouched. -->
+## [Phase 3] 무조건적 자가 공격 감사 및 자동 루프 (Self-Attack & Auto-Loop)
 
-## Hook Location Note
+Codex의 보고 수신 시, **"이미 실패했다"고 가정**하고 아래 **4회의 독립적 파괴 테스트**를 수행한다. 결함 발견 시 즉시 Codex에게 재지시한다.
 
-OMA 관리 블록에는 공통 hook 경로가 `.agents/hooks/core/triggers.json`로 표시될 수 있다. 이 프로젝트의 실제 런타임 hook 파일은 Codex용 `.codex/hooks/`와 Gemini용 `.gemini/hooks/`에 생성되어 있으며, OMA 관리 블록은 직접 수정하지 않는다.
+| 번호 | 테스트명 | 주입 / 검사 대상 |
+| --- | --- | --- |
+| ① | 스트레스 테스트 | null, undefined, NaN, 빈 배열, 거대 데이터 |
+| ② | 아키텍처 감사 | 참조 누수, 부동 소수점 오차, 전역 변수 오염 |
+| ③ | 패턴 전수 조사 | 전체 프로젝트 내 유사 결함 0건 증명 |
+| ④ | 시맨틱 감사 | 초기 데이터 모순, 필수 기능 누락, 에러 처리 일관성 |
 
-## HIGH PRIORITY: Gemini → Codex Delegation Gate
+---
 
-이 프로젝트에서는 Gemini CLI와 Codex CLI를 tmux 2분할 환경에서 함께 사용한다.
+## 📜 [표준] 29단계 마스터 플랜 로드맵 (Master Planning Roadmap)
+(1. 리서치 | 2. BM 정의 ... 29. 운영+개선 순으로 진행)
 
-이 규칙은 매우 중요하다. 사용자의 요청이 아래 유형에 해당하면 Gemini는 바로 직접 처리하지 말고, 먼저 Codex 위임 여부를 사용자에게 물어봐야 한다.
+## 🐞 [표준] 7단계 디버깅 워크플로우 (Zero-Defect Debugging)
+(1. 문제 정의 ... 7. DoD 최종 보고 순으로 진행)
 
-### Gemini 역할
+## Operational Compliance
 
-Gemini는 다음 작업을 담당한다.
+- **Surgical Instruction**: Never send vague requests. Every instruction to Codex must include exact file/function, before/after logic, and side-effect prevention.
+- **Silent Auto-Loop**: Perform 4 mandatory destructive tests (Stress, Atomic, Systemic, Semantic) on every Codex report. Do NOT report to the user until a 100% Clean state is achieved.
+- **Ledger Versioning**: Automatically version-up logs (`_N.md`) upon domain shifts or task completion.
 
-- 리서치
-- 트렌드 조사
-- 비교 분석
-- 기획 정리
-- 긴 문맥 분석
-- QA 리뷰
-- 아이디어 확장
-- 문서 검토
-- UI/UX 방향성 검토
+## Ledger Protocol (with Deep Audit)
 
-### Codex 역할
+- Append new Gemini plans to `docs/log/refactoring_plan.md`.
+- Codex appends execution reports to `docs/log/modification_log.md`.
+## Phase 3: Zero-Defect Deep Audit (심층 감사 및 자동 루프)
 
-Codex는 다음 작업을 담당한다.
+Review Agent는 Codex의 보고를 받으면, 단순히 수정을 확인하는 것을 넘어 **"이 코드는 반드시 실패한다"**는 가정을 바탕으로 아래 **4가지 파괴적 관점**에서 심층 감사를 자동 수행함.
 
-- 코드 수정
-- 리팩토링
-- 디버깅
-- 파일 변경
-- 테스트 실행
-- 실제 구현
-- Git diff 확인
-- 빌드/런타임 오류 수정
+### 1. 감사 필수 체크리스트 (9-Perspective Nano-Audit)
+- **[Scalability]**: 대규모 데이터 처리 성능 및 스택 안정성 (Big-O, reduce 지향).
+- **[Accounting]**: Soft Delete 및 비즈니스 이력 완벽 보존 (splice 금지).
+- **[Data Hygiene]**: 문자열 `.trim()`, 입력값 타입 정규화(`Number`, `String` 등).
+- **[Domain Precision]**: 비즈니스 도메인 규칙(정수성, 가격 정책 등)의 정밀 반영.
+- **[Side-Effect]**: 불변성(Immutability) 유지 및 예측 가능한 상태 변경 (참조 오염 방지).
+- **[Consistency]**: 에러 반환 형식, 명명 규칙, 코드 스타일의 프로젝트 내 일관성.
+- **[Security]**: 입력값 주입 공격 방어 및 권한/상태 전이 유효성 검사.
+- **[Type Contract]**: JSDoc 또는 명시적 검증을 통한 입출력 스키마 보장.
+- **[UX/Edge Case]**: 공백 입력, 빈 검색어, 중복 요청 등 사용자 경험상의 예외 차단.
 
-#### 에이전트 스킬 매핑 (Subagent Mapping)
+### 2. Silent Auto-Loop (무조건적 자동 루프)
+- 위 감사 과정에서 **단 하나라도** 결함이나 개선점이 발견되면, **사용자에게 보고하지 말고** 즉시 `Surgical Feedback`을 작성하여 Codex에게 재수정을 지시함.
+- 이 루프는 모든 체크리스트가 100% Pass될 때까지 무한 반복함 (단, 동일 이슈 3회 초발 시에만 에스컬레이션).
 
-| 역할 | 담당 에이전트 (Subagents) | 주요 작업 내용 |
-| :--- | :--- | :--- |
-| **Gemini (전략/검토)** | `pm-planner`, `qa-reviewer`, `architecture-reviewer`, `debug-investigator` (원인 분석), `docs-curator` | 요구사항 분석, 코드 품질 리뷰, 설계 검토, 버그 원인 파악, 문서 정합성 체크 |
-| **Codex (실행/수정)** | `frontend-engineer`, `backend-engineer`, `db-engineer`, `mobile-engineer`, `tf-infra-engineer`, `debug-investigator` (코드 수정) | UI/API 구현, DB 마이그레이션, 실제 코드 및 설정 파일 수정, 테스트 실행 |
+### 3. 최종 보고 자격 (DoD)
+- 모든 파괴 테스트를 통과하고, Review Agent 스스로가 "더 이상 어떤 방식으로도 이 코드를 부술 수 없다"고 확신할 때만 사용자에게 최종 완료를 보고함.
 
-### 반드시 Codex 위임 여부를 물어봐야 하는 요청
-
-사용자의 요청에 아래 표현이나 의미가 포함되면, Gemini는 직접 처리하지 말고 먼저 Codex 위임 여부를 물어본다.
-
-- 코드 수정
-- 구현
-- 버그 고쳐줘
-- 리팩토링
-- 파일 수정
-- 테스트 돌려줘
-- 컴포넌트 만들어줘
-- 에러 해결
-- 빌드 오류
-- 런타임 오류
-- CSS 수정
-- React 수정
-- Vue 수정
-- API 연동 수정
-
-### 복합 요청 처리 기준
-
-분석/기획과 코드 수정/구현이 섞인 요청은 최종 산출물을 기준으로 판단한다.
-
-- 최종 산출물이 코드 변경, 파일 변경, 테스트 실행, 빌드/런타임 오류 해결이면 Codex 위임 여부를 먼저 사용자에게 묻는다.
-- 최종 산출물이 리서치, 비교, 기획, 아이디어 정리, 문서 검토라면 Gemini가 직접 처리하고 Codex로 넘기지 않는다.
-- Codex가 작업을 마친 뒤 검토가 필요하면 Gemini는 diff, 테스트 결과, 변경 요약을 기준으로 리뷰/분석만 수행한다.
-- Codex에게 위임할 때는 구현 범위와 수정 금지 범위를 명확히 적어 불필요한 파일 변경을 막는다.
-
-### 자동 Codex 위임 예외
-
-Gemini가 리뷰/분석을 완료한 뒤 그 결과를 바탕으로 파일 수정이 필요하다고 판단한 경우, 사용자가 이미 "수정까지 진행", "Codex에 맡겨", "알아서 넘겨", "자동으로 실행"처럼 자동 수정 위임 의사를 밝힌 상태라면 별도의 추가 확인 없이 Codex로 위임한다.
-
-이때 Gemini는 사용자에게 다시 "Codex CLI에 보내서 실행할까요?"라고 묻지 않는다. 대신 다음 명령을 바로 실행한다.
+- **Codex 보고 의무 (Reporting Instruction)**: Codex는 수정을 마친 후 반드시 아래와 같은 형식의 메시지로 Gemini에게 보고해야 함.
 
 ```bash
-./scripts/ask-codex.sh "<Codex에게 보낼 프롬프트>"
+./scripts/ask-gemini.sh "docs/log/modification_log.md 에 신규 수정 보고 섹션을 추가 저장하였습니다. 해당 증분 섹션에 대한 심층 분석을 요청드립니다. 분석 결과 결함이 발견되면 즉시 보완 계획을 회신해주시고, 문제가 없으면 최종 승인으로 작업을 종료해주세요."
 ```
 
-자동 위임 프롬프트에는 반드시 다음 marker를 첫 줄에 포함한다.
+## Delegation To Codex
 
-```text
-AUTO_FIX_FROM_GEMINI_REVIEW
-```
-
-자동 위임은 Gemini 리뷰 결과를 바탕으로 한 코드/문서/설정 파일 수정에만 허용한다. 민감정보 처리, destructive command, 대규모 삭제, 배포, 결제/권한 변경, 외부 서비스 설정 변경은 자동 위임하지 말고 사용자 승인을 다시 받는다.
-
-### 반드시 먼저 물어볼 문장
-
-위 조건에 해당하면 Gemini는 작업을 시작하기 전에 반드시 아래 문장을 먼저 출력한다.
-
-"이 작업은 Codex에게 맡기는 게 더 적합해 보여요. Codex CLI에 보내서 실행할까요?"
-
-### 승인 조건
-
-사용자가 다음처럼 승인한 경우에만 Codex로 보낸다.
-
-- yes
-- y
-- 응
-- 그래
-- 보내줘
-- 실행해
-- 좋아
-- ㅇㅇ
-
-### 사용자가 승인하면 실행할 명령
-
-사용자가 승인하면 Gemini는 다음 명령을 실행한다.
+For all implementation, file modification, and debugging tasks, use:
 
 ```bash
-./scripts/ask-codex.sh "<Codex에게 보낼 프롬프트>"
+./scripts/ask-codex.sh "<prompt>"
 ```
 
-### Codex로 보낼 프롬프트에 반드시 포함할 내용
+**Completion Notification Rule**: 
+Codex는 작업을 완료하고 `modification_log.md`를 업데이트한 즉시, `./scripts/ask-gemini.sh`를 실행하여 Gemini(Review Agent)에게 "Phase 2 완료 및 감사 요청" 메시지를 보내야 합니다. 이는 감사 프로세스의 즉각적인 시작을 보장하기 위함입니다.
 
-Codex에게 짧은 명령만 보내지 않는다. 반드시 다음 내용을 포함한다.
+Automatic fix marker: `AUTO_FIX_FROM_GEMINI_REVIEW`
 
-- 사용자의 원래 요청
-- 현재 프로젝트 맥락
-- 현재 작업 요약
-- 관련 파일 경로가 있으면 포함
-- 이미 코드가 변경된 경우 `git diff --stat` 또는 변경 요약
-- Git 저장소가 아니거나 `git diff` 확인이 불가능하면 변경된 파일 목록과 수정 내용을 직접 요약
-- 수정 허용 범위
-- 기존 구조와 className을 최대한 유지하라는 지시
-- 변경 후 수정 파일과 수정 이유를 요약하라는 지시
-- 가능하면 테스트 또는 확인 기준
-- 민감한 정보는 포함하지 말 것
+## Runtime Notes
 
-### 금지
-
-- 사용자 승인 없이 Codex CLI로 보내지 않는다. 단, 위 "자동 Codex 위임 예외"에 해당하는 경우는 이미 사용자 승인 범위에 포함된 것으로 본다.
-- 리서치, 비교, 기획, 아이디어 정리만 필요한 작업은 Codex로 넘기지 않는다.
-- Codex에게 민감한 정보, API key, 비밀번호, 토큰을 포함하지 않는다.
-- Codex가 수정한 결과는 반드시 diff와 테스트 결과를 확인한다. Git 저장소가 아니라 diff 확인이 불가능하면 변경 파일 목록과 변경 요약을 확인한다.
+- Gemini runtime files live under `.gemini/`.
+- Gemini pane state, when active, is tracked by `.gemini-pane`.
+- Use `./scripts/ask-gemini.sh` only for messages directed to Gemini.
