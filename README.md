@@ -1,80 +1,93 @@
-# MultAgent AI Collaboration Workspace
+# AI Collaboration Framework & Boilerplate (Antigravity 2.0)
 
-이 저장소는 Codex와 Review Agent(agy 또는 Gemini)를 tmux 2분할로 함께 사용하는 AI 협업 작업공간입니다. 현재 공유 규칙의 SSOT는 `AGENTS.md`이며, README는 빠른 실행과 구조 요약만 제공합니다.
+이 저장소는 **새로운 프로젝트를 즉시 시작할 수 있는 AI 협업 프레임워크**입니다. **Antigravity 2.0 (oma)** 표준을 기반으로 하며, **Codex**와 **Gemini CLI 1.0**의 협업을 통해 어떤 주제든 기획부터 구현까지 자동화된 공정으로 수행합니다.
 
-## Quick Start
+---
 
-기본 Codex + agy 조합:
+## 🚀 1. 개요 (Overview)
 
+이 프로젝트는 단순히 특정 앱의 소스 코드가 아니라, **모든 소프트웨어 개발에 적용 가능한 AI 작업 시스템**입니다. 클론 후 주제만 던지면 AI 에이전트들이 `AGENTS.md`에 정의된 정밀 로드맵에 따라 기획하고 코드를 작성합니다.
+
+*   **Review Agent (Gemini CLI 1.0)**: 리서치, 아키텍처 설계, 초정밀 지시서 작성 및 심층 감사 담당.
+*   **Execution Agent (Codex)**: 실제 코드 구현, 자가 검증 및 기술적 실행 담당.
+*   **Antigravity 2.0 Desktop App**: 전역 오류 수정 및 최종 퍼블리싱 담당.
+
+---
+
+## 🛠 2. 설치 및 준비 사항 (Prerequisites)
+
+시스템 사용을 위해 아래 프로그램들이 설치되어 있어야 합니다.
+
+1.  **필수 인프라**: `tmux` (화면 분할), `Node.js v20+` (런타임), `Git` (버전 관리).
+2.  **AI 에이전트 CLI**: 터미널에서 `codex`, `gemini` (Gemini CLI 1.0), `agy` 명령어가 사용 가능해야 합니다.
+3.  **Antigravity 2.0 Desktop App**: 별도 제공되는 설치 파일을 통해 데스크톱 앱으로 설치하십시오.
+
+---
+
+## ⚙️ 3. 초기 설정 및 시작 (Setup & Quick Start)
+
+### 초기 설정 (클론 직후)
+이 저장소를 클론하면 코드는 비어있고 **AI 협업을 위한 구조(Skeleton)**만 준비되어 있습니다.
 ```bash
-./scripts/start-ai.sh
+# 1. 스크립트 실행 권한 부여
+chmod +x scripts/*.sh
+
+# 2. 새로운 프로젝트 디렉토리 준비
+# 실제 소스 코드가 담길 폴더를 생성하거나 초기화하십시오.
 ```
 
-Codex + Gemini 조합:
-
+### 협업 세션 시작
 ```bash
 ./scripts/start-ai.sh gemini
 ```
+*   터미널이 분할되며 왼쪽에는 Codex, 오른쪽에는 Gemini CLI 1.0이 실행됩니다.
 
-실행 후 tmux 왼쪽 pane은 Codex, 오른쪽 pane은 선택한 Review Agent입니다.
+---
 
-## 역할 분담
+## 📖 4. 주요 가이드 (Project Standards)
 
-| 담당 | 역할 |
-| --- | --- |
-| Codex | 코드 수정, 리팩토링, 디버깅, 테스트 실행, 빌드/런타임 오류 해결, Git diff 확인 |
-| Review Agent(agy/Gemini) | 리서치, 비교 분석, 기획, 아키텍처/QA/문서 검토, 긴 문맥 분석 |
+모든 AI 에이전트의 구동 규칙과 기술 로드맵은 **`AGENTS.md`**에 통합되어 관리됩니다. 에이전트에게 작업을 지시하기 전 반드시 해당 파일을 참조하십시오.
 
-구현이나 파일 변경이 필요한 작업은 Codex가 담당합니다. 리뷰나 분석 결과를 바탕으로 수정이 필요하면 Review Agent가 `AUTO_FIX_FROM_AGY_REVIEW` 또는 `AUTO_FIX_FROM_GEMINI_REVIEW` 마커를 붙여 Codex에 위임합니다.
+*   **29단계 마스터 플랜**: 리서치부터 배포/운영까지의 전 공정 로드맵.
+*   **18단계 협업 메커니즘**: 기획-구현-검증-정제-출하-문서화의 정밀 사이클.
+*   **7단계 디버깅 워크플로우**: 오류 보고 시 수행되는 무결점 복구 프로세스.
 
-## SSOT 구조
+---
 
-| 파일/디렉터리 | 용도 |
-| --- | --- |
-| `AGENTS.md` | 공통 프로젝트 규칙, 위임 규칙, 장부 프로토콜의 SSOT |
-| `AGY.md` | AGY 런타임 전용 보조 지침 |
-| `GEMINI.md` | Gemini 런타임 전용 보조 지침 |
-| `.agents/` | oh-my-agent 설정, skills, workflows의 SSOT. 직접 수정하지 않습니다. |
-| `.codex/agents/` | Codex native custom agent 정의 |
-| `.agy/agents/` | agy native agent 정의 |
-| `.gemini/agents/` | Gemini native agent 정의 |
-| `docs/log/refactoring_plan.md` | Review Agent가 append-only로 작성하는 수정 계획 장부 |
-| `docs/log/modification_log.md` | Codex가 append-only로 작성하는 수정 보고 장부 |
-| `docs/setup/` | 설치 및 운영 보조 문서 |
+## 🤖 5. 시나리오별 AI 작동 구조 (How it Works)
 
-상세한 규칙, 예외, 협업 프로토콜은 `AGENTS.md`를 기준으로 확인합니다. `AGY.md`와 `GEMINI.md`는 공통 규칙을 복제하지 않고 각 런타임에 필요한 차이만 보관합니다.
+사용자의 요청에 따라 두 에이전트(Gemini, Codex)가 톱니바퀴처럼 역할을 분담하여 작동하는 세부 구조입니다.
 
-## Hook 및 Workflow 기준
+### 시나리오 A: "새로운 프로젝트를 기획해줘"
+이 요청은 100% **Gemini CLI 1.0(기획/설계)**의 단독 무대입니다.
+1.  **지침 로드**: Gemini는 자신의 전용 지침(`GEMINI.md`)을 읽고 **29단계 마스터 플랜 로드맵**을 활성화합니다.
+2.  **문서 생성**: `docs/plans/` 폴더 내부에 리서치, 비즈니스 전략, ERD, 아키텍처 등 전체 기획서를 순차적으로 생성합니다.
+3.  **보고**: "기획서 작성이 완료되었습니다"라고 사용자에게 보고합니다. *(이 단계에서는 코드를 전혀 건드리지 않습니다.)*
 
-- 공통 OMA 설정은 `.agents/`가 기준입니다.
-- Runtime hook 구현은 `.codex/hooks/`, `.agy/hooks/`, `.gemini/hooks/`에 위치합니다.
-- 중복 trigger 정의는 줄이고, 현재 `triggers.json`은 `.gemini/hooks/triggers.json`만 유지합니다.
-- Workflow는 프롬프트 키워드 또는 명시 요청으로 실행됩니다. 직접 실행 규칙은 `AGENTS.md`와 `.agents/workflows/`를 따릅니다.
+### 시나리오 B: "기획안대로 기능을 구현해줘"
+작성된 기획을 실제 코드로 옮기는 **협업(Ping-Pong)** 과정입니다.
+1.  **지시서 작성 (Gemini)**: `docs/plans/`의 기획을 바탕으로 "어느 파일의 몇 번째 줄을 어떻게 고쳐라"라는 정밀 설계도(Surgical Plan)를 `docs/log/`에 작성하고 Codex를 호출합니다.
+2.  **실제 코딩 (Codex)**: Codex는 `AGENTS.md`의 구현 지침에 따라 설계도를 정독한 후 코드를 작성하고 자가 검증(Lint/Build)을 수행합니다. 작업이 끝나면 완료 보고서를 남깁니다.
+3.  **파괴적 검수 (Gemini)**: Gemini가 다시 등판하여 Codex가 작성한 코드를 4대 파괴 테스트(Stress, Security 등)로 공격합니다. 결함이 없어야만 최종 완료를 선언합니다.
 
-## Pane 메시지 전송
+### 시나리오 C: "A 화면에서 에러가 발생해. 고쳐줘"
+오류 복구 역시 두 에이전트의 철저한 분업으로 이루어집니다.
+1.  **원인 분석 (Gemini)**: 로그와 코드를 탐색(Deep Research)하여 에러의 근본 원인을 찾고, 실패하는 테스트 코드를 먼저 작성하도록 설계도를 짭니다.
+2.  **복구 수술 (Codex)**: Codex가 설계도에 따라 코드를 수술(Surgical Fix)하고, 실패하던 테스트가 성공(Green)하는지 확인합니다.
+3.  **회귀 테스트 (Gemini)**: 수정으로 인해 다른 정상적인 기능이 망가지지 않았는지 전체적으로 다시 검수합니다.
 
-```bash
-./scripts/ask-codex.sh "Codex에게 보낼 메시지"
-./scripts/ask-agy.sh "agy에게 보낼 메시지"
-./scripts/ask-gemini.sh "Gemini에게 보낼 메시지"
-```
+---
 
-`scripts/start-ai.sh`는 활성 pane id를 `.codex-pane`, `.agy-pane`, `.gemini-pane` 중 필요한 파일에 기록합니다. 이 파일들은 런타임 상태 파일이며 사람이 직접 편집할 필요가 없습니다.
+## 📂 6. 주요 구조 및 주의 사항 (Structure & Notice)
 
-## 장부 기반 수정 루프
+### 프로젝트 구조
+*   `AGENTS.md`: **절대 SSOT**. 모든 AI 구동 규칙 및 프로젝트 로드맵 정의.
+*   `scripts/`: AI 세션 및 에이전트 간 통신 스크립트.
+*   `docs/plans/`: 고수준 전체 기획서(Master Plan) 보관소.
+*   `docs/log/`: 작업 단위 정밀 설계(Surgical Plan) 및 수정 보고(Log) 보관소.
+*   `.agents/`: Antigravity 2.0(oma) 워크플로우 및 스킬 설정.
 
-1. Review Agent가 `docs/log/refactoring_plan.md` 하단에 신규 계획 또는 보완 계획을 추가합니다.
-2. Codex는 최신 증분 섹션만 읽고 수정합니다.
-3. Codex는 `docs/log/modification_log.md` 하단에 신규 수정 보고를 추가합니다.
-4. Codex는 활성 Review Agent 스크립트로 검토 요청을 보냅니다.
-5. Review Agent는 최신 보고 섹션과 실제 변경 파일을 직접 검토합니다.
-
-기존 장부 내용은 덮어쓰지 않고 항상 append-only로 유지합니다.
-
-## 주의 사항
-
-- `.agents/`는 직접 수정하지 않습니다.
-- 민감 정보(API key, password, token)는 프롬프트나 장부에 넣지 않습니다.
-- 코드 변경 후에는 가능한 한 `git diff --check`, 관련 테스트, 파일 존재 검증을 실행합니다.
-- 리뷰 결과만 믿고 승인하지 말고 실제 변경 파일을 확인합니다.
-- 새로운 상세 운영 문서는 `docs/setup/`에 둡니다.
+### 주의 사항
+*   **AGENTS.md 중심**: 에이전트의 모든 행동은 `AGENTS.md`를 최우선으로 따릅니다.
+*   **장부 기반 협업**: 모든 이력은 `docs/log/` 및 `docs/plans/`에 남겨야 합니다.
+*   **Desktop App 활용**: 최종 퍼블리싱과 전역 오류 수정은 반드시 데스크톱 앱을 사용하십시오.

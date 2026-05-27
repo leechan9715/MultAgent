@@ -28,6 +28,11 @@ test_*.ts
 # --- Documentation & Logs ---
 docs/log/*
 !docs/log/.gitkeep
+docs/plans/*
+!docs/plans/.gitkeep
+!docs/plans/*/
+docs/plans/*/*
+!docs/plans/*/.gitkeep
 docs/reports/
 docs/audit/
 docs/AI_ARCHITECTURE_GUIDE.md
@@ -38,6 +43,7 @@ docs
 !docs/
 docs/*
 !docs/log/
+!docs/plans/
 !docs/setup/
 !docs/setup/**
 
@@ -48,3 +54,5 @@ dist/
 build/
 .env*
 !.env.example
+loopnote
+
