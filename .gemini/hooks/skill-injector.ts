@@ -201,18 +201,28 @@ export function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+const triggerCache = new Map<string, RegExp[]>();
+
 export function buildTriggerPatterns(
   triggers: string[],
   lang: string,
   cjkScripts: string[],
 ): RegExp[] {
-  return triggers.map((kw) => {
+  const cacheKey = `${lang}_${JSON.stringify(triggers)}`;
+  if (triggerCache.has(cacheKey)) {
+    return triggerCache.get(cacheKey)!;
+  }
+
+  const compiled = triggers.map((kw) => {
     const escaped = escapeRegex(kw).replace(/\s+/g, "\\s+");
     if (cjkScripts.includes(lang) || /[^\p{ASCII}]/u.test(kw)) {
       return new RegExp(escaped, "i");
     }
     return new RegExp(`\\b${escaped}\\b`, "i");
   });
+
+  triggerCache.set(cacheKey, compiled);
+  return compiled;
 }
 
 // ── Skill Discovery ───────────────────────────────────────────

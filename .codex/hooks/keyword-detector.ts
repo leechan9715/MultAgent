@@ -2,7 +2,7 @@
 /**
  * oh-my-agent — Prompt Hook (keyword detection)
  *
- * Works with: Claude Code (UserPromptSubmit), Codex CLI (UserPromptSubmit), agy CLI (BeforeAgent)
+ * Works with: Claude Code (UserPromptSubmit), Codex CLI (UserPromptSubmit), agy/Gemini CLI (BeforeAgent)
  *
  * Detects natural-language keywords in user prompts and injects
  * workflow instructions into the agent's context.
@@ -45,7 +45,7 @@ export function normalizeForMatching(text: string): string {
 
 /**
  * Brands that count as CLI invocations: Oma plus the host LLM CLIs declared
- * in `VENDORS` (claude, codex, cursor, agy, qwen). The vendor list is
+ * in `VENDORS` (claude, codex, cursor, agy, gemini, qwen). The vendor list is
  * the single source of truth for hook-supported runtimes; pulling from it
  * here keeps the brand set in sync when a new vendor is added.
  *
@@ -86,7 +86,7 @@ const SIGNALS_RE_SOURCE = CLI_INVOCATION_SIGNALS.join("|");
  *      enumerated subcommand verbs (agent / auto / exec / run / spawn),
  *      a --flag, or a colon-namespaced subcommand ('agent:spawn').
  *      Examples: 'oma agent:spawn brainstorm', 'claude --help',
- *      'codex exec --workflow ralph', 'agy agent', 'cursor agent',
+ *      'codex exec --workflow ralph', 'agy agent', 'gemini', 'cursor agent',
  *      'qwen run'.
  */
 export const CLI_INVOCATION_AT_START = new RegExp(
@@ -124,7 +124,7 @@ export function shouldSkipAllWorkflows(text: string): boolean {
 const VALID_USER_EVENTS = new Set([
   "UserPromptSubmit",
   "beforeSubmitPrompt", // Cursor
-  "BeforeAgent", // agy (fires before agent processes user prompt)
+  "BeforeAgent", // agy/Gemini (fires before agent processes user prompt)
 ]);
 
 /**
@@ -258,6 +258,7 @@ function inferVendorFromScriptPath(): Vendor | null {
   if (path.includes(`${join(".cursor", "hooks")}`)) return "cursor";
   if (path.includes(`${join(".qwen", "hooks")}`)) return "qwen";
   if (path.includes(`${join(".claude", "hooks")}`)) return "claude";
+  if (path.includes(`${join(".gemini", "hooks")}`)) return "gemini";
   if (path.includes(`${join(".agy", "hooks")}`)) return "agy";
   if (path.includes(`${join(".codex", "hooks")}`)) return "codex";
   return null;
@@ -267,6 +268,8 @@ function detectVendor(input: Record<string, unknown>): Vendor {
   const event = input.hook_event_name as string | undefined;
   const byScriptPath = inferVendorFromScriptPath();
   if (byScriptPath) return byScriptPath;
+  if (event === "BeforeAgent" && process.env.GEMINI_PROJECT_DIR)
+    return "gemini";
   if (event === "BeforeAgent") return "agy";
   if (event === "beforeSubmitPrompt") return "cursor";
   if (event === "UserPromptSubmit") {
@@ -282,7 +285,7 @@ function isExpectedHookEvent(
   vendor: Vendor,
   event: string | undefined,
 ): boolean {
-  if (vendor === "agy") return event === "BeforeAgent";
+  if (vendor === "agy" || vendor === "gemini") return event === "BeforeAgent";
   if (vendor === "codex") return event === "UserPromptSubmit";
   return true;
 }
@@ -296,6 +299,9 @@ function getProjectDir(vendor: Vendor, input: Record<string, unknown>): string {
       break;
     case "agy":
       dir = process.env.AGY_PROJECT_DIR || process.cwd();
+      break;
+    case "gemini":
+      dir = process.env.GEMINI_PROJECT_DIR || process.cwd();
       break;
     case "qwen":
       dir = process.env.QWEN_PROJECT_DIR || process.cwd();
@@ -353,24 +359,34 @@ export function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+const patternCache = new Map<string, RegExp[]>();
+
 export function buildPatterns(
   keywords: Record<string, string[]>,
   lang: string,
   cjkScripts: string[],
 ): RegExp[] {
+  const cacheKey = `${lang}_${JSON.stringify(keywords)}`;
+  if (patternCache.has(cacheKey)) {
+    return patternCache.get(cacheKey)!;
+  }
+
   const allKeywords = [
     ...(keywords["*"] ?? []),
     ...(keywords.en ?? []),
     ...(lang !== "en" ? (keywords[lang] ?? []) : []),
   ];
 
-  return allKeywords.map((kw) => {
+  const compiled = allKeywords.map((kw) => {
     const escaped = escapeRegex(kw).replace(/\s+/g, "\\s+");
     if (cjkScripts.includes(lang) || /[^\p{ASCII}]/u.test(kw)) {
       return new RegExp(escaped, "i");
     }
     return new RegExp(`(?:^|[^\\w-])${escaped}(?:$|[^\\w-])`, "i");
   });
+
+  patternCache.set(cacheKey, compiled);
+  return compiled;
 }
 
 /**

@@ -359,24 +359,34 @@ export function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+const patternCache = new Map<string, RegExp[]>();
+
 export function buildPatterns(
   keywords: Record<string, string[]>,
   lang: string,
   cjkScripts: string[],
 ): RegExp[] {
+  const cacheKey = `${lang}_${JSON.stringify(keywords)}`;
+  if (patternCache.has(cacheKey)) {
+    return patternCache.get(cacheKey)!;
+  }
+
   const allKeywords = [
     ...(keywords["*"] ?? []),
     ...(keywords.en ?? []),
     ...(lang !== "en" ? (keywords[lang] ?? []) : []),
   ];
 
-  return allKeywords.map((kw) => {
+  const compiled = allKeywords.map((kw) => {
     const escaped = escapeRegex(kw).replace(/\s+/g, "\\s+");
     if (cjkScripts.includes(lang) || /[^\p{ASCII}]/u.test(kw)) {
       return new RegExp(escaped, "i");
     }
     return new RegExp(`(?:^|[^\\w-])${escaped}(?:$|[^\\w-])`, "i");
   });
+
+  patternCache.set(cacheKey, compiled);
+  return compiled;
 }
 
 /**
