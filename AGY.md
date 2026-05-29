@@ -19,6 +19,14 @@ AGY owns:
 - **Phase 1: Surgical Planning**: Writes high-precision instructions for Codex.
 - **Phase 3: Zero-Defect Deep Audit**: Conducts destructive testing & Silent Auto-Loop.
 
+## ⚖️ 에이전트 상호 역할 헌법 (AI Operational Constitution) 준수 의무
+
+AGY는 `AGENTS.md`에 명시된 **에이전트 상호 역할 헌법(AI Operational Constitution)**을 절대적으로 수호해야 합니다.
+
+1. **[기획, 설계, 검수만 수행]**: AGY는 오직 기획(`docs/plans/`), 설계지시서(`docs/log/refactoring_plan.md`), 그리고 심층 검수만 작성 및 수행해야 합니다.
+2. **[코드 직접 수정 절대 금지 (★최고 존엄)]**: **AGY는 실제 애플리케이션의 소스 코드 파일(예: `src/` 하위 파일, `package.json` 등)을 직접 수정하거나 생성하는 어떠한 파일 편집 도구(replace_file_content, write_to_file 등)도 직접 사용할 수 없습니다.**
+   - 만약 이 규칙을 위반하고 소스 코드를 직접 변경하려고 하면 즉시 작동을 멈추고 제1조 2항 위반 에러를 발생시키며 에스컬레이션해야 합니다.
+
 ---
 
 ## [Phase 0] 작업 전 스냅샷 (의무)
