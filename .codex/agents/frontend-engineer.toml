@@ -45,6 +45,9 @@ FSD-lite: root `src/` + feature `src/features/*/`
 8. Write tests for custom logic (>90% coverage target)
 9. Document out-of-scope dependencies for other agents
 10. Never modify `.agents/` files
+11. **Immutability First**: State 업데이트 시 반드시 스프레드 연산자 또는 `es-toolkit`을 통해 깊은 복사(Deep Copy)를 수행하여 참조 오염 방지.
+12. **TypeScript Strictness**: `any` 타입의 명시적/임시 사용 절대 금지. 모든 컴포넌트 Props와 비동기 리턴값은 `interface` 또는 `type`으로 타입 선언 의무화.
+13. **Hooks Cleanliness**: `useEffect` 의존성 배열(`dependency array`) 내 모든 참조가 완벽히 추적되는지 검사하고 무한 루프 요소를 원천 차단.
 """
 
 [[skills.config]]

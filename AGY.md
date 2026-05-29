@@ -37,7 +37,15 @@ AGY owns:
 
 ## [Phase 1] 초정밀 분석 및 상세 지시 (Surgical Planning)
 
-코드베이스를 심층 분석한 뒤 아래 **고정 템플릿**으로 Surgical Plan을 작성하여 Codex에게 전달한다.
+코드베이스를 심층 분석한 뒤 **모든 서브에이전트 전문 분야(PM, 아키텍처, DB, UI/UX, QA)의 분석 관점을 결합**하여 아래 **고정 템플릿**으로 초정밀 Surgical Plan을 작성하여 Codex에게 전달한다.
+
+### 💡 초정밀 다중-역할 사전 분석 의무 (Multi-Role Preflight)
+Surgical Plan을 작성하기 전에 반드시 다음 5가지 전문 영역의 전제 조건을 심층 분석하고, 그 결과를 계획안 내에 명시하십시오. 이는 Codex가 어떠한 모호함도 없이 기획을 100% 코드로 구현해낼 수 있도록 돕는 유일한 기준입니다.
+- **PM 관점 (기획/WBS)**: 세부 구현 단계(Task Breakdown) 및 의존성, 완료 정의(DoD)를 완벽히 쪼갭니다.
+- **아키텍처 관점 (시스템 디자인)**: 두 가지 이상의 설계 옵션을 비교하고 장단점을 분석하여, 구조적 리스크를 해제합니다.
+- **데이터베이스 관점 (데이터 모델)**: 테이블 추가/변경 사항, 정규화, 인덱싱, Soft Delete 및 트랜잭션 무결성을 분석합니다.
+- **UI/UX & 디자인 관점 (스타일/접근성)**: 재사용 컴포넌트, TailwindCSS v4 디자인 토큰, 시맨틱 태그 및 웹 접근성(ARIA)을 규정합니다.
+- **QA 관점 (예외/보안)**: 데이터 경계값(Boundary), Null/Empty 대응, OWASP Top 10 보안 위험 요소 제거 방안을 마련합니다.
 
 ```markdown
 ### [Surgical Plan vN] YYYY-MM-DD HH:MM
@@ -46,6 +54,19 @@ AGY owns:
 **참조 기획/설계 파일**: (필수 참조 파일 목록)
 **대상 함수 / 라인**:
 
+#### 🧩 1. 다중-역할 전문 설계 (Multi-Role Specs)
+- **[PM] 작업 분해 및 의존성 (WBS)**:
+  - (예: Task 1: API 라우터 추가 -> Task 2: Service 비즈니스 로직 작성 -> Task 3: UI 상태 Jotai 연동)
+- **[Architecture] 설계 옵션 비교 및 구조 (ADR)**:
+  - (옵션 A vs 옵션 B 비교 분석 및 최종 구조 아키텍처 정의)
+- **[Database] 스키마 및 트랜잭션 설계 (DB)**:
+  - (신규 테이블/컬럼 정의, Soft Delete 보존 여부, 인덱스 추가 계획)
+- **[UI/UX] 컴포넌트 및 접근성 표준 (Design)**:
+  - (Tailwind 토큰, Jotai/Query 클라이언트 상태, ARIA 웹 접근성 준수 지침)
+- **[QA] 예외 처리 및 보안 가이드라인 (QA)**:
+  - (Null/NaN, 빈 입력 예외 대응, XSS/SQL Injection 등 OWASP 보안 방안)
+
+#### 📝 2. 코드 레벨 세부 지시 (Implementation Specs)
 **수정 전 로직**:
 (코드 또는 의사코드)
 
@@ -55,9 +76,9 @@ AGY owns:
 **예상 부작용**:
 **부작용 방지책**:
 
-**완료 기준 (DoD)**:
+#### 🏆 3. 완료 기준 (DoD)
 - [ ] 심각 이슈 0건 / 경고 이슈 신규 발생 0건
-- [ ] 파괴 테스트 4회 전부 pass
+- [ ] 파괴 테스트 4회 전부 pass (Stress, Atomic, Systemic, Semantic)
 - [ ] 수정 전/후 동작 동일성 검증 완료
 ```
 
@@ -93,6 +114,9 @@ Codex의 보고 수신 시, **"이미 실패했다"고 가정**하고 아래 **4
 - Append new AGY plans to `docs/log/refactoring_plan.md`.
 - Codex appends execution reports to `docs/log/modification_log.md`.
 - **Deep Audit Rule**: When Codex reports completion, read the latest report AND perform a system-wide scan for similar unaddressed patterns. Inspect all relevant files before approving.
+- **Deep Audit Checklist**:
+  - **[NextJS/React Standards]**: `useEffect` 의존성 배열 누락 여부 검사, 메모리 누수를 유발하는 비동기 클로저 체크, SSR-CSR 불일치(Hydration Error) 요소 정밀 탐색.
+  - **[Async Integrity]**: `try-catch` 블록이 없는 `await` 구문 검출, Promise 누수로 인한 좀비 프로세스 방지.
 - If follow-up work or similar pattern fixes are needed, append a new `## [신규 피드백/보완 계획 - ...]` section to `docs/log/refactoring_plan.md` and trigger Codex again. This loop must repeat until a Deep Audit confirms that no further modifications or pattern expansions are necessary.
 
 ## Delegation To Codex
